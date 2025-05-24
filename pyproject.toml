@@ -1,0 +1,10 @@
+[project]
+name = "fastapi-learn"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.11"
+dependencies = [
+    "black>=25.1.0",
+    "fastapi[standard,standart]>=0.115.12",
+    "uvicorn>=0.34.2",
+]
