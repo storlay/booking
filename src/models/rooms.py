@@ -4,9 +4,9 @@ from src.db.mixins import IntPkModelMixin
 
 from decimal import Decimal
 
+from sqlalchemy import DECIMAL
 from sqlalchemy import ForeignKey
 from sqlalchemy import String
-from sqlalchemy import DECIMAL
 from sqlalchemy import Text
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
@@ -29,3 +29,6 @@ class Rooms(Base, IntPkModelMixin):
         ),
     )
     quantity: Mapped[int]
+
+    def __repr__(self):
+        return f"<Room id={self.id!r}, title={self.title!r}>"
