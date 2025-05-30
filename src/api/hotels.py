@@ -6,7 +6,7 @@ from sqlalchemy import select
 
 from src.api.dependecies import PaginationDep
 from src.db.database import async_session
-from src.models.hotels import Hotels
+from src.repositories.hotels import HotelsRepository
 from src.schemas.hotels import CreateHotelSchema
 from src.schemas.hotels import PartialUpdateHotelSchema
 
@@ -25,22 +25,19 @@ async def get_hotels(
         description="Hotel's title",
     ),
     location: str = Query(
-            None,
-            description="Hotel's location",
-        ),
+        None,
+        description="Hotel's location",
+    ),
 ):
     limit = pagination.per_page
     offset = pagination.per_page * (pagination.page - 1)
-    query = select(Hotels)
-    if title:
-        query = query.filter(Hotels.title.icontains(title))
-    if location:
-        query = query.filter(Hotels.location.icontains(location))
-    query = query.limit(limit).offset(offset)
     async with async_session() as session:
-        result = await session.execute(query)
-    hotels = result.scalars().all()
-    return hotels
+        return await HotelsRepository(session).get_all(
+            title,
+            location,
+            limit,
+            offset,
+        )
 
 
 @router.delete("/{hotel_id}")
@@ -64,10 +61,14 @@ async def add_hotel(
         }
     ),
 ):
+    data = data.model_dump()
     async with async_session() as session:
-        add_hotel_stmt = insert(Hotels).values(**data.model_dump())
-        await session.execute(add_hotel_stmt)
+        result = await HotelsRepository(session).add(data)
         await session.commit()
+    return {
+        "status": "OK",
+        "data": result,
+    }
 
 
 @router.put("/{hotel_id}")
