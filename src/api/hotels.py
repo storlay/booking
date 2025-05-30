@@ -1,14 +1,16 @@
 from fastapi import APIRouter
+from fastapi import HTTPException
 from fastapi import Body
 from fastapi import Query
-from sqlalchemy import insert
-from sqlalchemy import select
+from fastapi import status
 
 from src.api.dependecies import PaginationDep
 from src.db.database import async_session
 from src.repositories.hotels import HotelsRepository
 from src.schemas.hotels import CreateOrUpdateHotelSchema
 from src.schemas.hotels import PartialUpdateHotelSchema
+from sqlalchemy.exc import MultipleResultsFound
+from sqlalchemy.exc import NoResultFound
 
 
 router = APIRouter(
@@ -41,10 +43,26 @@ async def get_hotels(
 
 
 @router.delete("/{hotel_id}")
-def delete_hotel(
+async def delete_hotel(
     hotel_id: int,
 ):
-    pass
+    async with async_session() as session:
+        try:
+            await HotelsRepository(session).delete_one(
+                id=hotel_id,
+            )
+            await session.commit()
+        except NoResultFound:
+            raise HTTPException(
+                status.HTTP_404_NOT_FOUND,
+                detail={"message": "Hotel not found."},
+            )
+        except MultipleResultsFound:
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST,
+                detail={"message": "Multiple hotels found."},
+            )
+    return {"status": "OK"}
 
 
 @router.post("/")
@@ -61,7 +79,6 @@ async def add_hotel(
         }
     ),
 ):
-    data = data.model_dump()
     async with async_session() as session:
         result = await HotelsRepository(session).add(data)
         await session.commit()
@@ -72,16 +89,28 @@ async def add_hotel(
 
 
 @router.put("/{hotel_id}")
-def update_hotel(
+async def update_hotel(
     hotel_id: int,
-    title: str = Body(
-        description="Hotel's title to update.",
-    ),
-    name: str = Body(
-        description="Hotel's name to update.",
-    ),
+    data: CreateOrUpdateHotelSchema,
 ):
-    pass
+    async with async_session() as session:
+        try:
+            await HotelsRepository(session).update_one(
+                data,
+                id=hotel_id,
+            )
+            await session.commit()
+        except NoResultFound:
+            raise HTTPException(
+                status.HTTP_404_NOT_FOUND,
+                detail={"message": "Hotel not found."},
+            )
+        except MultipleResultsFound:
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST,
+                detail={"message": "Multiple hotels found."},
+            )
+    return {"status": "OK"}
 
 
 @router.patch("/{hotel_id}")
