@@ -42,6 +42,19 @@ async def get_hotels(
         )
 
 
+@router.get("/{hotel_id}")
+async def get_hotel(
+    hotel_id: int,
+):
+    async with async_session() as session:
+        # fmt: off
+        return (
+            await HotelsRepository(session)
+            .get_one_or_none(id=hotel_id)
+        )
+        # fmt: on
+
+
 @router.delete("/{hotel_id}")
 async def delete_hotel(
     hotel_id: int,
@@ -55,12 +68,12 @@ async def delete_hotel(
         except NoResultFound:
             raise HTTPException(
                 status.HTTP_404_NOT_FOUND,
-                detail={"message": "Hotel not found."},
+                detail="Hotel not found.",
             )
         except MultipleResultsFound:
             raise HTTPException(
                 status.HTTP_400_BAD_REQUEST,
-                detail={"message": "Multiple hotels found."},
+                detail="Multiple hotels found.",
             )
     return {"status": "OK"}
 
@@ -103,19 +116,37 @@ async def update_hotel(
         except NoResultFound:
             raise HTTPException(
                 status.HTTP_404_NOT_FOUND,
-                detail={"message": "Hotel not found."},
+                detail="Hotel not found.",
             )
         except MultipleResultsFound:
             raise HTTPException(
                 status.HTTP_400_BAD_REQUEST,
-                detail={"message": "Multiple hotels found."},
+                detail="Multiple hotels found.",
             )
     return {"status": "OK"}
 
 
 @router.patch("/{hotel_id}")
-def update_hotel_partial(
+async def update_hotel_partial(
     hotel_id: int,
     data: PartialUpdateHotelSchema,
 ):
-    pass
+    async with async_session() as session:
+        try:
+            await HotelsRepository(session).update_one(
+                data,
+                partially=True,
+                id=hotel_id,
+            )
+            await session.commit()
+        except NoResultFound:
+            raise HTTPException(
+                status.HTTP_404_NOT_FOUND,
+                detail="Hotel not found.",
+            )
+        except MultipleResultsFound:
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST,
+                detail="Multiple hotels found.",
+            )
+    return {"status": "OK"}
