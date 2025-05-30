@@ -56,12 +56,13 @@ class BaseRepository:
     async def update_one(
         self,
         data: BaseModel,
+        partially: bool = False,
         **filter_by,
     ) -> None:
         # fmt: off
         stmt = (
             update(self.model)
-            .values(**data.model_dump())
+            .values(**data.model_dump(exclude_unset=partially))
             .filter_by(**filter_by)
             .returning(self.model.id)
         )
