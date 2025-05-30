@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from pydantic import Field
 
 
-class CreateHotelSchema(BaseModel):
+class CreateOrUpdateHotelSchema(BaseModel):
     title: str
     location: str
 
