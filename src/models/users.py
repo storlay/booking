@@ -7,7 +7,16 @@ from src.db.mixins import IntPkModelMixin
 
 
 class Users(Base, IntPkModelMixin):
-    email: Mapped[str] = mapped_column(String(200))
-    password: Mapped[str] = mapped_column(String(200))
-    first_name: Mapped[str | None] = mapped_column(String(200))
-    last_name: Mapped[str | None] = mapped_column(String(200))
+    email: Mapped[str] = mapped_column(
+        String(200),
+        unique=True,
+    )
+    password: Mapped[str] = mapped_column(
+        String(200),
+    )
+    first_name: Mapped[str | None] = mapped_column(
+        String(200),
+    )
+    last_name: Mapped[str | None] = mapped_column(
+        String(200),
+    )
