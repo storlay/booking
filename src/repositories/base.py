@@ -3,13 +3,14 @@ from sqlalchemy import delete
 from sqlalchemy import insert
 from sqlalchemy import select
 from sqlalchemy import update
-from sqlalchemy.exc import NoResultFound
-from sqlalchemy.exc import MultipleResultsFound
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.db.database import Base
 
 
 class BaseRepository:
-    model = None
+    model: Base = None
+    schema: BaseModel = None
 
     def __init__(
         self,
@@ -24,7 +25,12 @@ class BaseRepository:
     ):
         query = select(self.model)
         result = await self.session.execute(query)
-        return result.scalars().all()
+        # fmt: off
+        return [
+            self.schema.model_validate(model)
+            for model in result.scalars().all()
+        ]
+        # fmt: on
 
     async def get_one_or_none(
         self,
@@ -37,7 +43,10 @@ class BaseRepository:
         )
         # fmt: on
         result = await self.session.execute(query)
-        return result.scalars().one_or_none()
+        model = result.scalars().one_or_none()
+        if model is None:
+            return model
+        return self.schema.model_validate(model)
 
     async def add(
         self,
@@ -51,7 +60,8 @@ class BaseRepository:
         )
         # fmt: on
         result = await self.session.execute(stmt)
-        return result.scalar_one()
+        model = result.scalar_one()
+        return self.schema.model_validate(model)
 
     async def update_one(
         self,
