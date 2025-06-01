@@ -13,6 +13,7 @@ from src.schemas.hotels import CreateOrUpdateHotelSchema
 from src.schemas.hotels import HotelSchema
 from src.schemas.hotels import PartialUpdateHotelSchema
 
+
 router = APIRouter(
     prefix="/hotels",
     tags=["Hotels"],
