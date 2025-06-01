@@ -11,6 +11,8 @@ class RegisterUserSchema(BaseModel):
 class UserSchema(BaseModel):
     id: int
     email: EmailStr
+    first_name: str | None
+    last_name: str | None
 
     model_config = ConfigDict(
         from_attributes=True,
