@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from pydantic import ConfigDict
 from pydantic import EmailStr
 from pydantic import Field
+from pydantic import field_validator
 
 
 class RegisterUserSchema(BaseModel):
@@ -10,6 +11,14 @@ class RegisterUserSchema(BaseModel):
         min_length=8,
         max_length=200,
     )
+
+    @field_validator(
+        "email",
+        mode="after",
+    )
+    @classmethod
+    def email_to_lower(cls, value: str) -> str:
+        return value.lower()
 
 
 class UserSchema(BaseModel):
