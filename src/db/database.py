@@ -7,7 +7,6 @@ from sqlalchemy.orm import declared_attr
 
 from src.config.config import settings
 
-
 async_engine = create_async_engine(
     url=settings.db.URL,
 )
