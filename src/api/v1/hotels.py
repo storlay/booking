@@ -1,17 +1,17 @@
 from fastapi import APIRouter
-from fastapi import HTTPException
 from fastapi import Body
+from fastapi import HTTPException
 from fastapi import Query
 from fastapi import status
-
-from src.api.dependecies import PaginationDep
-from src.db.database import async_session
-from src.repositories.hotels import HotelsRepository
-from src.schemas.hotels import CreateOrUpdateHotelSchema
-from src.schemas.hotels import PartialUpdateHotelSchema
 from sqlalchemy.exc import MultipleResultsFound
 from sqlalchemy.exc import NoResultFound
 
+from src.api.v1.dependecies import PaginationDep
+from src.db.database import async_session
+from src.repositories.hotels import HotelsRepository
+from src.schemas.hotels import CreateOrUpdateHotelSchema
+from src.schemas.hotels import HotelSchema
+from src.schemas.hotels import PartialUpdateHotelSchema
 
 router = APIRouter(
     prefix="/hotels",
@@ -30,7 +30,7 @@ async def get_hotels(
         None,
         description="Hotel's location",
     ),
-):
+) -> list[HotelSchema]:
     limit = pagination.per_page
     offset = pagination.per_page * (pagination.page - 1)
     async with async_session() as session:
