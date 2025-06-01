@@ -20,6 +20,9 @@ dependencies = [
 
 [tool.ruff]
 line-length = 88
+exclude = [
+    "src/migrations",
+]
 
 [tool.ruff.lint]
 select = ["I"]
