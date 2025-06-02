@@ -11,11 +11,13 @@ class UsersRepository(BaseRepository):
     model = Users
     schema = UserSchema
 
-    async def get_one_with_password(
+    async def get_one_or_none_with_password(
         self,
         email: EmailStr,
     ) -> UserWithPasswordSchema | None:
         query = select(self.model).filter_by(email=email)
         result = await self.session.execute(query)
-        model = result.scalar_one()
+        model = result.scalar_one_or_none()
+        if model is None:
+            return None
         return UserWithPasswordSchema.model_validate(model)

@@ -41,7 +41,7 @@ async def login_user(
     response: Response,
 ):
     async with async_session() as session:
-        user = await UsersRepository(session).get_one_with_password(
+        user = await UsersRepository(session).get_one_or_none_with_password(
             email=data.email,
         )
     if not user or not AuthService().verify_password(data.password, user.password):
