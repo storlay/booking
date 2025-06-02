@@ -3,12 +3,12 @@ from pydantic import ConfigDict
 from pydantic import Field
 
 
-class CreateOrUpdateHotelSchema(BaseModel):
+class HotelCreateOrUpdateSchema(BaseModel):
     title: str
     location: str
 
 
-class HotelSchema(CreateOrUpdateHotelSchema):
+class HotelSchema(HotelCreateOrUpdateSchema):
     id: int
 
     model_config = ConfigDict(

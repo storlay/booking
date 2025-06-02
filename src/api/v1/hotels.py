@@ -9,7 +9,7 @@ from sqlalchemy.exc import NoResultFound
 from src.api.v1.dependecies import PaginationDep
 from src.db.database import async_session
 from src.repositories.hotels import HotelsRepository
-from src.schemas.hotels import CreateOrUpdateHotelSchema
+from src.schemas.hotels import HotelCreateOrUpdateSchema
 from src.schemas.hotels import HotelSchema
 from src.schemas.hotels import PartialUpdateHotelSchema
 
@@ -81,7 +81,7 @@ async def delete_hotel(
 
 @router.post("/")
 async def add_hotel(
-    data: CreateOrUpdateHotelSchema = Body(
+    data: HotelCreateOrUpdateSchema = Body(
         openapi_examples={
             "1": {
                 "summary": "Dubai",
@@ -105,7 +105,7 @@ async def add_hotel(
 @router.put("/{hotel_id}")
 async def update_hotel(
     hotel_id: int,
-    data: CreateOrUpdateHotelSchema,
+    data: HotelCreateOrUpdateSchema,
 ):
     async with async_session() as session:
         try:
