@@ -5,7 +5,7 @@ from pydantic import Field
 from pydantic import field_validator
 
 
-class RegisterUserSchema(BaseModel):
+class UserAuthSchema(BaseModel):
     email: EmailStr
     password: str = Field(
         min_length=8,
@@ -30,3 +30,8 @@ class UserSchema(BaseModel):
     model_config = ConfigDict(
         from_attributes=True,
     )
+
+
+class UserWithPasswordSchema(UserSchema):
+    password: str
+
