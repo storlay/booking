@@ -29,6 +29,16 @@ class DatabaseSettings(BaseModel):
     URL: PostgresDsn = f"postgresql+asyncpg://{USER}:{PASS}@{HOST}:{PORT}/{NAME}"
 
 
+class JWTSettings(BaseModel):
+    SECRET_KEY: str = os.getenv(
+        "JWT_SECRET_KEY",
+    )
+    ALGORITHM: str = os.getenv(
+        "JWT_ALGORITHM",
+    )
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+
+
 class ModelsSettings(BaseModel):
     DECIMAL_PRECISION: int = 10
     DECIMAL_SCALE: int = 2
@@ -36,6 +46,7 @@ class ModelsSettings(BaseModel):
 
 class Settings(BaseSettings):
     db: DatabaseSettings = DatabaseSettings()
+    jwt: JWTSettings = JWTSettings()
     models: ModelsSettings = ModelsSettings()
 
 
