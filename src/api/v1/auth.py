@@ -5,6 +5,7 @@ from fastapi import Response
 from fastapi import status
 from sqlalchemy.exc import IntegrityError
 
+from src.api.v1.dependecies import CurrentUserDep
 from src.db.database import async_session
 from src.repositories.users import UsersRepository
 from src.schemas.users import UserAuthSchema
@@ -60,9 +61,16 @@ async def login_user(
     }
 
 
-@router.post("/get-access-token")
-async def get_access_token(
-    request: Request,
+@router.post("/logout")
+async def logout_user(
+    response: Response,
 ):
-    access_token = request.cookies.get("access_token")
-    return {"access": access_token}
+    response.delete_cookie("access_token")
+    return {"status": "OK"}
+
+
+@router.post("/me")
+async def get_me(
+    user: CurrentUserDep,
+):
+    return user
