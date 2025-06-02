@@ -44,3 +44,13 @@ class AuthService:
             plain_password,
             hashed_password,
         )
+
+    def decode_token(
+        self,
+        token: str,
+    ) -> dict:
+        return jwt.decode(
+            token,
+            settings.jwt.SECRET_KEY,
+            algorithms=[settings.jwt.ALGORITHM],
+        )
