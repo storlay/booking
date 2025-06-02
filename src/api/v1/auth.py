@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 from fastapi import HTTPException
 from fastapi import Response
+from fastapi import Request
 from fastapi import status
 from sqlalchemy.exc import IntegrityError
 
@@ -58,3 +59,10 @@ async def login_user(
         },
     }
 
+
+@router.post("/get-access-token")
+async def get_access_token(
+    request: Request,
+):
+    access_token = request.cookies.get("access_token")
+    return {"access": access_token}
