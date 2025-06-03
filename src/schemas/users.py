@@ -1,16 +1,20 @@
+from typing import Annotated
+
+from annotated_types import MaxLen
+from annotated_types import MinLen
 from pydantic import BaseModel
 from pydantic import ConfigDict
 from pydantic import EmailStr
-from pydantic import Field
 from pydantic import field_validator
 
 
 class UserAuthSchema(BaseModel):
     email: EmailStr
-    password: str = Field(
-        min_length=8,
-        max_length=200,
-    )
+    password: Annotated[
+        str,
+        MinLen(8),
+        MaxLen(200),
+    ]
 
     @field_validator(
         "email",
@@ -34,4 +38,3 @@ class UserSchema(BaseModel):
 
 class UserWithPasswordSchema(UserSchema):
     password: str
-
