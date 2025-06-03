@@ -30,12 +30,8 @@ class DatabaseSettings(BaseModel):
 
 
 class JWTSettings(BaseModel):
-    SECRET_KEY: str = os.getenv(
-        "JWT_SECRET_KEY",
-    )
-    ALGORITHM: str = os.getenv(
-        "JWT_ALGORITHM",
-    )
+    SECRET_KEY: str = os.getenv("JWT_SECRET_KEY")
+    ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
 
