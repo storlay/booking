@@ -40,10 +40,15 @@ class ModelsSettings(BaseModel):
     DECIMAL_SCALE: int = 2
 
 
+class PaginationSettings(BaseModel):
+    MAX_ENTITIES_PER_PAGE: int = 100
+
+
 class Settings(BaseSettings):
     db: DatabaseSettings = DatabaseSettings()
     jwt: JWTSettings = JWTSettings()
     models: ModelsSettings = ModelsSettings()
+    pagination: PaginationSettings = PaginationSettings()
 
 
 settings = Settings()
