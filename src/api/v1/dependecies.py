@@ -1,6 +1,6 @@
 from typing import Annotated
 
-import jwt.exceptions
+import jwt
 from fastapi import Depends
 from fastapi import HTTPException
 from fastapi import Request
