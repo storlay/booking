@@ -37,4 +37,12 @@ class UserSchema(BaseModel):
 
 
 class UserWithPasswordSchema(UserSchema):
-    password: str
+    password: bytes
+
+    @field_validator(
+        "password",
+        mode="before",
+    )
+    @classmethod
+    def password_to_bytes(cls, value: str) -> bytes:
+        return value.encode("utf-8")

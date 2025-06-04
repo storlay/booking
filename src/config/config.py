@@ -1,8 +1,13 @@
 import os
+from datetime import timedelta
+from pathlib import Path
 
 from pydantic import BaseModel
 from pydantic import PostgresDsn
 from pydantic_settings import BaseSettings
+
+
+BASE_DIR = Path(__file__).parent.parent.parent
 
 
 class DatabaseSettings(BaseModel):
@@ -30,9 +35,18 @@ class DatabaseSettings(BaseModel):
 
 
 class JWTSettings(BaseModel):
-    SECRET_KEY: str = os.getenv("JWT_SECRET_KEY")
-    ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    PRIVATE_KEY_PATH: Path = BASE_DIR / "src" / "certs" / "jwt" / "private.pem"
+    PUBLIC_KEY_PATH: Path = BASE_DIR / "src" / "certs" / "jwt" / "public.pem"
+
+    ACCESS_TOKEN_EXPIRE_TIMEDELTA: timedelta = timedelta(minutes=15)
+    REFRESH_TOKEN_EXPIRE_TIMEDELTA: timedelta = timedelta(days=30)
+    ALGORITHM: str = "RS256"
+    TOKEN_TYPE: str = "Bearer"
+    TOKEN_OWNER: str = "booking"
+
+    ACCESS_TOKEN_TYPE: str = "access"
+    REFRESH_TOKEN_TYPE: str = "refresh"
+    TOKEN_TYPE_FIELD: str = "type"
 
 
 class ModelsSettings(BaseModel):

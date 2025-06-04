@@ -6,7 +6,7 @@ from fastapi import status
 from sqlalchemy.exc import MultipleResultsFound
 from sqlalchemy.exc import NoResultFound
 
-from src.api.v1.dependecies import PaginationDep
+from src.api.dependecies import PaginationDep
 from src.db.database import async_session
 from src.repositories.hotels import HotelsRepository
 from src.schemas.hotels import HotelCreateOrUpdateSchema

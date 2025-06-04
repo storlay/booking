@@ -1,0 +1,71 @@
+from datetime import UTC
+from datetime import datetime
+from datetime import timedelta
+
+import jwt
+
+from src.config.config import settings
+from src.schemas.users import UserSchema
+
+
+class JWTService:
+    @classmethod
+    def create_access_token_for_user(
+        cls,
+        user: UserSchema,
+    ) -> str:
+        base_payload = {
+            "sub": str(user.id),
+            "owner": settings.jwt.TOKEN_OWNER,
+            settings.jwt.TOKEN_TYPE_FIELD: settings.jwt.ACCESS_TOKEN_TYPE,
+        }
+        return cls._encode(
+            base_payload,
+            settings.jwt.ACCESS_TOKEN_EXPIRE_TIMEDELTA,
+        )
+
+    @classmethod
+    def create_refresh_token_for_user(
+        cls,
+        user: UserSchema,
+    ) -> str:
+        base_payload = {
+            "sub": str(user.id),
+            settings.jwt.TOKEN_TYPE_FIELD: settings.jwt.REFRESH_TOKEN_TYPE,
+        }
+        return cls._encode(
+            base_payload,
+            settings.jwt.REFRESH_TOKEN_EXPIRE_TIMEDELTA,
+        )
+
+    @staticmethod
+    def _encode(
+        payload: dict,
+        expire_timedelta: timedelta,
+        private_key: str = settings.jwt.PRIVATE_KEY_PATH.read_text(),
+        algorithm: str = settings.jwt.ALGORITHM,
+    ) -> str:
+        to_encode = payload.copy()
+        now = datetime.now(UTC)
+        expire = now + expire_timedelta
+        to_encode.update(
+            exp=expire,
+            iat=now,
+        )
+        return jwt.encode(
+            to_encode,
+            private_key,
+            algorithm=algorithm,
+        )
+
+    @staticmethod
+    def decode(
+        token: str | bytes,
+        public_key: str = settings.jwt.PUBLIC_KEY_PATH.read_text(),
+        algorithm: str = settings.jwt.ALGORITHM,
+    ) -> dict:
+        return jwt.decode(
+            token,
+            public_key,
+            algorithms=[algorithm],
+        )
