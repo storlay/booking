@@ -1,14 +1,17 @@
 from fastapi import APIRouter
 from fastapi import Body
 from fastapi import Query
+from fastapi import status
 from sqlalchemy.exc import MultipleResultsFound
 from sqlalchemy.exc import NoResultFound
+from starlette.status import HTTP_200_OK
 
 from src.api.dependecies import PaginationDep
 from src.db.database import async_session
 from src.exceptions.hotels import HotelNotFoundException
 from src.exceptions.hotels import MultipleHotelsFoundException
 from src.repositories.hotels import HotelsRepository
+from src.schemas.base import BaseSuccessResponseSchema
 from src.schemas.hotels import HotelCreateOrUpdateSchema
 from src.schemas.hotels import HotelSchema
 from src.schemas.hotels import PartialUpdateHotelSchema
@@ -20,7 +23,11 @@ router = APIRouter(
 )
 
 
-@router.get("/")
+@router.get(
+    "/",
+    response_model=list[HotelSchema],
+    status_code=status.HTTP_200_OK,
+)
 async def get_hotels(
     pagination: PaginationDep,
     title: str = Query(
@@ -43,10 +50,13 @@ async def get_hotels(
         )
 
 
-@router.get("/{hotel_id}")
+@router.get(
+    "/{hotel_id}",
+    response_model=HotelSchema | None,
+)
 async def get_hotel(
     hotel_id: int,
-):
+) -> HotelSchema | None:
     async with async_session() as session:
         # fmt: off
         return (
@@ -56,10 +66,14 @@ async def get_hotel(
         # fmt: on
 
 
-@router.delete("/{hotel_id}")
+@router.delete(
+    "/{hotel_id}",
+    response_model=BaseSuccessResponseSchema,
+    status_code=status.HTTP_200_OK,
+)
 async def delete_hotel(
     hotel_id: int,
-):
+) -> BaseSuccessResponseSchema:
     async with async_session() as session:
         try:
             await HotelsRepository(session).delete_one(
@@ -70,10 +84,14 @@ async def delete_hotel(
             raise HotelNotFoundException
         except MultipleResultsFound:
             raise MultipleHotelsFoundException
-    return {"status": "OK"}
+    return BaseSuccessResponseSchema()
 
 
-@router.post("/")
+@router.post(
+    "/",
+    response_model=HotelSchema,
+    status_code=status.HTTP_201_CREATED,
+)
 async def add_hotel(
     data: HotelCreateOrUpdateSchema = Body(
         openapi_examples={
@@ -86,21 +104,22 @@ async def add_hotel(
             }
         }
     ),
-):
+) -> HotelSchema:
     async with async_session() as session:
         result = await HotelsRepository(session).add(data)
         await session.commit()
-    return {
-        "status": "OK",
-        "data": result,
-    }
+    return result
 
 
-@router.put("/{hotel_id}")
+@router.put(
+    "/{hotel_id}",
+    response_model=BaseSuccessResponseSchema,
+    status_code=HTTP_200_OK,
+)
 async def update_hotel(
     hotel_id: int,
     data: HotelCreateOrUpdateSchema,
-):
+) -> BaseSuccessResponseSchema:
     async with async_session() as session:
         try:
             await HotelsRepository(session).update_one(
@@ -112,14 +131,18 @@ async def update_hotel(
             raise HotelNotFoundException
         except MultipleResultsFound:
             raise MultipleHotelsFoundException
-    return {"status": "OK"}
+    return BaseSuccessResponseSchema()
 
 
-@router.patch("/{hotel_id}")
+@router.patch(
+    "/{hotel_id}",
+    response_model=BaseSuccessResponseSchema,
+    status_code=status.HTTP_200_OK,
+)
 async def update_hotel_partial(
     hotel_id: int,
     data: PartialUpdateHotelSchema,
-):
+) -> BaseSuccessResponseSchema:
     async with async_session() as session:
         try:
             await HotelsRepository(session).update_one(
@@ -132,4 +155,4 @@ async def update_hotel_partial(
             raise HotelNotFoundException
         except MultipleResultsFound:
             raise MultipleHotelsFoundException
-    return {"status": "OK"}
+    return BaseSuccessResponseSchema()
