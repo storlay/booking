@@ -1,13 +1,13 @@
 from fastapi import APIRouter
 from fastapi import Body
-from fastapi import HTTPException
 from fastapi import Query
-from fastapi import status
 from sqlalchemy.exc import MultipleResultsFound
 from sqlalchemy.exc import NoResultFound
 
 from src.api.dependecies import PaginationDep
 from src.db.database import async_session
+from src.exceptions.hotels import HotelNotFoundException
+from src.exceptions.hotels import MultipleHotelsFoundException
 from src.repositories.hotels import HotelsRepository
 from src.schemas.hotels import HotelCreateOrUpdateSchema
 from src.schemas.hotels import HotelSchema
@@ -67,15 +67,9 @@ async def delete_hotel(
             )
             await session.commit()
         except NoResultFound:
-            raise HTTPException(
-                status.HTTP_404_NOT_FOUND,
-                detail="Hotel not found.",
-            )
+            raise HotelNotFoundException
         except MultipleResultsFound:
-            raise HTTPException(
-                status.HTTP_400_BAD_REQUEST,
-                detail="Multiple hotels found.",
-            )
+            raise MultipleHotelsFoundException
     return {"status": "OK"}
 
 
@@ -115,15 +109,9 @@ async def update_hotel(
             )
             await session.commit()
         except NoResultFound:
-            raise HTTPException(
-                status.HTTP_404_NOT_FOUND,
-                detail="Hotel not found.",
-            )
+            raise HotelNotFoundException
         except MultipleResultsFound:
-            raise HTTPException(
-                status.HTTP_400_BAD_REQUEST,
-                detail="Multiple hotels found.",
-            )
+            raise MultipleHotelsFoundException
     return {"status": "OK"}
 
 
@@ -141,13 +129,7 @@ async def update_hotel_partial(
             )
             await session.commit()
         except NoResultFound:
-            raise HTTPException(
-                status.HTTP_404_NOT_FOUND,
-                detail="Hotel not found.",
-            )
+            raise HotelNotFoundException
         except MultipleResultsFound:
-            raise HTTPException(
-                status.HTTP_400_BAD_REQUEST,
-                detail="Multiple hotels found.",
-            )
+            raise MultipleHotelsFoundException
     return {"status": "OK"}
