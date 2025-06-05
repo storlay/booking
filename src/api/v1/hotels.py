@@ -39,14 +39,12 @@ async def get_hotels(
         description="Hotel's location",
     ),
 ) -> list[HotelSchema]:
-    limit = pagination.per_page
-    offset = pagination.per_page * (pagination.page - 1)
     async with async_session() as session:
         return await HotelsRepository(session).get_all(
             title,
             location,
-            limit,
-            offset,
+            pagination.limit,
+            pagination.offset,
         )
 
 

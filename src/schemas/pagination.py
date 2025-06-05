@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from src.config.config import settings
 
 
-class PaginationParams(BaseModel):
+class PaginationRequestSchema(BaseModel):
     page: Annotated[
         int,
         Query(
@@ -22,3 +22,8 @@ class PaginationParams(BaseModel):
             le=settings.pagination.MAX_ENTITIES_PER_PAGE,
         ),
     ]
+
+
+class PaginationSchema(BaseModel):
+    limit: int
+    offset: int
