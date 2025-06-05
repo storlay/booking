@@ -1,3 +1,5 @@
+from typing import Any
+
 from pydantic import BaseModel
 from sqlalchemy import delete
 from sqlalchemy import insert
@@ -9,7 +11,7 @@ from src.db.database import Base
 
 
 class BaseRepository:
-    model: Base = None
+    model: type[Base] = None
     schema: BaseModel = None
 
     def __init__(
@@ -22,7 +24,7 @@ class BaseRepository:
         self,
         *args,
         **kwargs,
-    ):
+    ) -> list[BaseModel | Any]:
         query = select(self.model)
         result = await self.session.execute(query)
         # fmt: off
@@ -35,7 +37,7 @@ class BaseRepository:
     async def get_one_or_none(
         self,
         **filter_by,
-    ):
+    ) -> BaseModel | None | Any:
         # fmt: off
         query = (
             select(self.model)
@@ -43,15 +45,29 @@ class BaseRepository:
         )
         # fmt: on
         result = await self.session.execute(query)
-        model = result.scalars().one_or_none()
+        model = result.scalar_one_or_none()
         if model is None:
             return model
+        return self.schema.model_validate(model)
+
+    async def get_one(
+        self,
+        **filter_by,
+    ) -> BaseModel | Any:
+        # fmt: off
+        query = (
+            select(self.model)
+            .filter_by(**filter_by)
+        )
+        # fmt: on
+        result = await self.session.execute(query)
+        model = result.scalar_one()
         return self.schema.model_validate(model)
 
     async def add(
         self,
         data: BaseModel,
-    ):
+    ) -> BaseModel | Any:
         # fmt: off
         stmt = (
             insert(self.model)
