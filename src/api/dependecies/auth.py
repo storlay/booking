@@ -1,4 +1,5 @@
 from typing import Annotated
+from typing import Callable
 
 import jwt
 from fastapi import Depends
@@ -41,7 +42,7 @@ def get_token_payload(
         raise InvalidAuthTokenException
 
 
-def get_current_user_by_token_type(token_type: str):
+def get_current_user_by_token_type(token_type: str) -> Callable:
     async def get_user_from_payload(
         payload: dict = Depends(get_token_payload),
     ) -> UserSchema:
