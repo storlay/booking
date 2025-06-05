@@ -1,9 +1,11 @@
 from fastapi import APIRouter
 from fastapi import status
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.exc import NoResultFound
 
 from src.api.dependecies import PaginationDep
 from src.db.database import async_session
+from src.exceptions.hotels import HotelNotFoundException
 from src.exceptions.rooms import RoomNotFoundException
 from src.repositories.rooms import RoomsRepository
 from src.schemas.base import BaseHTTPExceptionSchema
@@ -67,6 +69,12 @@ async def get_hotel_room(
     "/{hotel_id}/rooms",
     response_model=RoomSchema,
     status_code=status.HTTP_201_CREATED,
+    responses={
+        HotelNotFoundException.status_code: {
+            "model": BaseHTTPExceptionSchema,
+            "description": HotelNotFoundException.detail,
+        },
+    },
 )
 async def add_room_to_hotel(
     hotel_id: int,
@@ -77,8 +85,11 @@ async def add_room_to_hotel(
         **data.model_dump(),
     )
     async with async_session() as session:
-        result = await RoomsRepository(session).add(data)
-        await session.commit()
+        try:
+            result = await RoomsRepository(session).add(data)
+            await session.commit()
+        except IntegrityError:
+            raise HotelNotFoundException
     return result
 
 
