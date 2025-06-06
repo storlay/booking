@@ -22,7 +22,7 @@ class Bookings(Base, IntPkModelMixin):
     )
     date_from: Mapped[date]
     date_to: Mapped[date]
-    price_per_day: Mapped[Decimal] = mapped_column(
+    price: Mapped[Decimal] = mapped_column(
         DECIMAL(
             precision=settings.models.DECIMAL_PRECISION,
             scale=settings.models.DECIMAL_SCALE,
@@ -31,7 +31,7 @@ class Bookings(Base, IntPkModelMixin):
 
     @hybrid_property
     def total(self) -> Decimal:
-        return self.price_per_day * (self.date_to - self.date_from).days
+        return self.price * (self.date_to - self.date_from).days
 
     __table_args__ = (
         CheckConstraint(
