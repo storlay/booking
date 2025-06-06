@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from src.api.v1.auth import router as auth_router
+from src.api.v1.bookings import router as bookings_router
 from src.api.v1.hotels import router as hotels_router
 from src.api.v1.rooms import router as rooms_router
 
@@ -13,6 +14,7 @@ routers = (
     auth_router,
     hotels_router,
     rooms_router,
+    bookings_router,
 )
 
 for router in routers:
