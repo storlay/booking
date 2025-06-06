@@ -1,9 +1,11 @@
 import os
 from datetime import timedelta
+from decimal import Decimal
 from pathlib import Path
 
 from pydantic import BaseModel
 from pydantic import PostgresDsn
+from pydantic import computed_field
 from pydantic_settings import BaseSettings
 
 
@@ -52,6 +54,13 @@ class JWTSettings(BaseModel):
 class ModelsSettings(BaseModel):
     DECIMAL_PRECISION: int = 10
     DECIMAL_SCALE: int = 2
+
+    @computed_field
+    @property
+    def MAX_DECIMAL_VALUE(self) -> Decimal:
+        digits_before_decimal = self.DECIMAL_PRECISION - self.DECIMAL_SCALE
+        max_value_str = "9" * digits_before_decimal + "." + "9" * self.DECIMAL_SCALE
+        return Decimal(max_value_str)
 
 
 class PaginationSettings(BaseModel):
