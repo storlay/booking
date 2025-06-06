@@ -1,4 +1,3 @@
-from decimal import Decimal
 from typing import Annotated
 
 from annotated_types import Ge
@@ -6,6 +5,8 @@ from annotated_types import MaxLen
 from annotated_types import MinLen
 from pydantic import BaseModel
 from pydantic import ConfigDict
+
+from src.schemas.base import PositiveDecimal
 
 
 class RoomCreateRequestSchema(BaseModel):
@@ -17,10 +18,7 @@ class RoomCreateRequestSchema(BaseModel):
         str | None,
         MinLen(10),
     ]
-    price: Annotated[
-        Decimal,
-        Ge(0),
-    ]
+    price: PositiveDecimal
     quantity: Annotated[
         int,
         Ge(0),
@@ -52,10 +50,7 @@ class RoomPartiallyUpdateSchema(BaseModel):
         str | None,
         MinLen(10),
     ]
-    price: Annotated[
-        Decimal | None,
-        Ge(0),
-    ]
+    price: PositiveDecimal
     quantity: Annotated[
         int | None,
         Ge(0),
