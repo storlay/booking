@@ -20,12 +20,11 @@ class BaseRepository:
     ):
         self.session = session
 
-    async def get_all(
+    async def get_filtered(
         self,
-        *args,
-        **kwargs,
+        **filter_by,
     ) -> list[BaseModel | Any]:
-        query = select(self.model)
+        query = select(self.model).filter_by(**filter_by)
         result = await self.session.execute(query)
         # fmt: off
         return [
@@ -33,6 +32,13 @@ class BaseRepository:
             for model in result.scalars().all()
         ]
         # fmt: on
+
+    async def get_all(
+        self,
+        *args,
+        **kwargs,
+    ) -> list[BaseModel | Any]:
+        return await self.get_filtered()
 
     async def get_one_or_none(
         self,
