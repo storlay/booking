@@ -132,7 +132,17 @@ async def add_hotel(
 )
 async def update_hotel(
     hotel_id: int,
-    data: HotelCreateOrUpdateSchema,
+    data: HotelCreateOrUpdateSchema = Body(
+        openapi_examples={
+            "1": {
+                "summary": "Dubai",
+                "value": {
+                    "title": "Dubai 2 stars",
+                    "location": "Sheikh street, 1212131",
+                },
+            }
+        }
+    ),
 ) -> BaseSuccessResponseSchema:
     async with async_session() as session:
         try:
@@ -159,7 +169,16 @@ async def update_hotel(
 )
 async def update_hotel_partial(
     hotel_id: int,
-    data: PartialUpdateHotelSchema,
+    data: PartialUpdateHotelSchema = Body(
+        openapi_examples={
+            "1": {
+                "summary": "Dubai",
+                "value": {
+                    "title": "Dubai Hotel",
+                },
+            }
+        }
+    ),
 ) -> BaseSuccessResponseSchema:
     async with async_session() as session:
         try:

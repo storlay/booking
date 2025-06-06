@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+from fastapi import Body
 from fastapi import status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.exc import NoResultFound
@@ -78,7 +79,19 @@ async def get_hotel_room(
 )
 async def add_room_to_hotel(
     hotel_id: int,
-    data: RoomCreateRequestSchema,
+    data: RoomCreateRequestSchema = Body(
+        openapi_examples={
+            "1": {
+                "summary": "Luxe",
+                "value": {
+                    "title": "Luxe",
+                    "description": "Super Luxe apartment",
+                    "price": 1221212121,
+                    "quantity": 2,
+                },
+            }
+        }
+    ),
 ) -> RoomSchema:
     data = RoomCreateSchema(
         hotel_id=hotel_id,
@@ -107,7 +120,19 @@ async def add_room_to_hotel(
 async def update_hotel_room(
     hotel_id: int,
     room_id: int,
-    data: RoomUpdateSchema,
+    data: RoomUpdateSchema = Body(
+        openapi_examples={
+            "1": {
+                "summary": "Luxe",
+                "value": {
+                    "title": "Other Luxe",
+                    "description": "Very very luxe apartment",
+                    "price": 9999999,
+                    "quantity": 1,
+                },
+            }
+        }
+    ),
 ) -> BaseSuccessResponseSchema:
     async with async_session() as session:
         try:
@@ -136,7 +161,16 @@ async def update_hotel_room(
 async def update_hotel_room_partial(
     hotel_id: int,
     room_id: int,
-    data: RoomPartiallyUpdateSchema,
+    data: RoomPartiallyUpdateSchema = Body(
+        openapi_examples={
+            "1": {
+                "summary": "Luxe",
+                "value": {
+                    "price": 9999999,
+                },
+            }
+        }
+    ),
 ) -> BaseSuccessResponseSchema:
     async with async_session() as session:
         try:
