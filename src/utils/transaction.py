@@ -32,11 +32,6 @@ class BaseManager(ABC):
         """Commit the transaction"""
         pass
 
-    @abstractmethod
-    async def rollback(self):
-        """Rollback the transaction"""
-        pass
-
 
 class TransactionManager(BaseManager):
     def __init__(self, session_factory: Callable):
@@ -50,11 +45,8 @@ class TransactionManager(BaseManager):
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
-        await self.rollback()
+        await self.session.rollback()
         await self.session.close()
 
     async def commit(self):
-        self.session.commit()
-
-    async def rollback(self):
-        self.session.rollback()
+        await self.session.commit()
