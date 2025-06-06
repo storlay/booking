@@ -5,10 +5,9 @@ from fastapi import status
 from sqlalchemy.exc import NoResultFound
 from starlette.status import HTTP_200_OK
 
+from src.api.dependecies import DbTransactionDep
 from src.api.dependecies import PaginationDep
-from src.db.database import async_session
 from src.exceptions.hotels import HotelNotFoundException
-from src.repositories.hotels import HotelsRepository
 from src.schemas.base import BaseHTTPExceptionSchema
 from src.schemas.base import BaseSuccessResponseSchema
 from src.schemas.hotels import HotelCreateOrUpdateSchema
@@ -29,6 +28,7 @@ router = APIRouter(
 )
 async def get_hotels(
     pagination: PaginationDep,
+    transaction: DbTransactionDep,
     title: str = Query(
         None,
         description="Hotel's title",
@@ -38,13 +38,12 @@ async def get_hotels(
         description="Hotel's location",
     ),
 ) -> list[HotelSchema]:
-    async with async_session() as session:
-        return await HotelsRepository(session).get_all(
-            title,
-            location,
-            pagination.limit,
-            pagination.offset,
-        )
+    return await transaction.hotels.get_all(
+        title,
+        location,
+        pagination.limit,
+        pagination.offset,
+    )
 
 
 @router.get(
@@ -60,14 +59,14 @@ async def get_hotels(
 )
 async def get_hotel(
     hotel_id: int,
+    transaction: DbTransactionDep,
 ) -> HotelSchema:
-    async with async_session() as session:
-        try:
-            return await HotelsRepository(session).get_one(
-                id=hotel_id,
-            )
-        except NoResultFound:
-            raise HotelNotFoundException
+    try:
+        return await transaction.hotels.get_one(
+            id=hotel_id,
+        )
+    except NoResultFound:
+        raise HotelNotFoundException
 
 
 @router.post(
@@ -76,6 +75,7 @@ async def get_hotel(
     status_code=status.HTTP_201_CREATED,
 )
 async def add_hotel(
+    transaction: DbTransactionDep,
     data: HotelCreateOrUpdateSchema = Body(
         openapi_examples={
             "1": {
@@ -88,9 +88,8 @@ async def add_hotel(
         }
     ),
 ) -> HotelSchema:
-    async with async_session() as session:
-        result = await HotelsRepository(session).add(data)
-        await session.commit()
+    result = await transaction.hotels.add(data)
+    await transaction.commit()
     return result
 
 
@@ -107,6 +106,7 @@ async def add_hotel(
 )
 async def update_hotel(
     hotel_id: int,
+    transaction: DbTransactionDep,
     data: HotelCreateOrUpdateSchema = Body(
         openapi_examples={
             "1": {
@@ -119,15 +119,14 @@ async def update_hotel(
         }
     ),
 ) -> BaseSuccessResponseSchema:
-    async with async_session() as session:
-        try:
-            await HotelsRepository(session).update_one(
-                data,
-                id=hotel_id,
-            )
-            await session.commit()
-        except NoResultFound:
-            raise HotelNotFoundException
+    try:
+        await transaction.hotels.update_one(
+            data,
+            id=hotel_id,
+        )
+        await transaction.commit()
+    except NoResultFound:
+        raise HotelNotFoundException
     return BaseSuccessResponseSchema()
 
 
@@ -144,6 +143,7 @@ async def update_hotel(
 )
 async def update_hotel_partial(
     hotel_id: int,
+    transaction: DbTransactionDep,
     data: PartialUpdateHotelSchema = Body(
         openapi_examples={
             "1": {
@@ -155,16 +155,15 @@ async def update_hotel_partial(
         }
     ),
 ) -> BaseSuccessResponseSchema:
-    async with async_session() as session:
-        try:
-            await HotelsRepository(session).update_one(
-                data,
-                partially=True,
-                id=hotel_id,
-            )
-            await session.commit()
-        except NoResultFound:
-            raise HotelNotFoundException
+    try:
+        await transaction.hotels.update_one(
+            data,
+            partially=True,
+            id=hotel_id,
+        )
+        await transaction.commit()
+    except NoResultFound:
+        raise HotelNotFoundException
     return BaseSuccessResponseSchema()
 
 
@@ -181,13 +180,13 @@ async def update_hotel_partial(
 )
 async def delete_hotel(
     hotel_id: int,
+    transaction: DbTransactionDep,
 ) -> BaseSuccessResponseSchema:
-    async with async_session() as session:
-        try:
-            await HotelsRepository(session).delete_one(
-                id=hotel_id,
-            )
-            await session.commit()
-        except NoResultFound:
-            raise HotelNotFoundException
+    try:
+        await transaction.hotels.delete_one(
+            id=hotel_id,
+        )
+        await transaction.commit()
+    except NoResultFound:
+        raise HotelNotFoundException
     return BaseSuccessResponseSchema()

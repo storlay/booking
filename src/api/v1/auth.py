@@ -5,11 +5,10 @@ from sqlalchemy.exc import IntegrityError
 from src.api.dependecies import AuthenticateUserDep
 from src.api.dependecies import CurrentUserDep
 from src.api.dependecies import CurrentUserForRefreshDep
-from src.db.database import async_session
+from src.api.dependecies import DbTransactionDep
 from src.exceptions.auth import IncorrectAuthCredsException
 from src.exceptions.auth import InvalidAuthTokenException
 from src.exceptions.auth import UserAlreadyExistsException
-from src.repositories.users import UsersRepository
 from src.schemas.auth import JWTInfoSchema
 from src.schemas.base import BaseHTTPExceptionSchema
 from src.schemas.base import BaseSuccessResponseSchema
@@ -38,14 +37,14 @@ router = APIRouter(
 )
 async def register_user(
     data: UserAuthSchema,
+    transaction: DbTransactionDep,
 ) -> BaseSuccessResponseSchema:
     data.password = AuthService.hash_password(data.password).decode("utf-8")
-    async with async_session() as session:
-        try:
-            await UsersRepository(session).add(data)
-            await session.commit()
-        except IntegrityError:
-            raise UserAlreadyExistsException
+    try:
+        await transaction.users.add(data)
+        await transaction.commit()
+    except IntegrityError:
+        raise UserAlreadyExistsException
     return BaseSuccessResponseSchema()
 
 
