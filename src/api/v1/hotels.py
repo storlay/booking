@@ -70,31 +70,6 @@ async def get_hotel(
             raise HotelNotFoundException
 
 
-@router.delete(
-    "/{hotel_id}",
-    response_model=BaseSuccessResponseSchema,
-    status_code=status.HTTP_200_OK,
-    responses={
-        HotelNotFoundException.status_code: {
-            "model": BaseHTTPExceptionSchema,
-            "description": HotelNotFoundException.detail,
-        },
-    },
-)
-async def delete_hotel(
-    hotel_id: int,
-) -> BaseSuccessResponseSchema:
-    async with async_session() as session:
-        try:
-            await HotelsRepository(session).delete_one(
-                id=hotel_id,
-            )
-            await session.commit()
-        except NoResultFound:
-            raise HotelNotFoundException
-    return BaseSuccessResponseSchema()
-
-
 @router.post(
     "/",
     response_model=HotelSchema,
@@ -185,6 +160,31 @@ async def update_hotel_partial(
             await HotelsRepository(session).update_one(
                 data,
                 partially=True,
+                id=hotel_id,
+            )
+            await session.commit()
+        except NoResultFound:
+            raise HotelNotFoundException
+    return BaseSuccessResponseSchema()
+
+
+@router.delete(
+    "/{hotel_id}",
+    response_model=BaseSuccessResponseSchema,
+    status_code=status.HTTP_200_OK,
+    responses={
+        HotelNotFoundException.status_code: {
+            "model": BaseHTTPExceptionSchema,
+            "description": HotelNotFoundException.detail,
+        },
+    },
+)
+async def delete_hotel(
+    hotel_id: int,
+) -> BaseSuccessResponseSchema:
+    async with async_session() as session:
+        try:
+            await HotelsRepository(session).delete_one(
                 id=hotel_id,
             )
             await session.commit()
