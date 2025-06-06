@@ -86,7 +86,7 @@ async def add_room_to_hotel(
                 "value": {
                     "title": "Luxe",
                     "description": "Super Luxe apartment",
-                    "price": 1221212121,
+                    "price": 12121,
                     "quantity": 2,
                 },
             }
@@ -127,7 +127,7 @@ async def update_hotel_room(
                 "value": {
                     "title": "Other Luxe",
                     "description": "Very very luxe apartment",
-                    "price": 9999999,
+                    "price": 999,
                     "quantity": 1,
                 },
             }
@@ -166,7 +166,7 @@ async def update_hotel_room_partial(
             "1": {
                 "summary": "Luxe",
                 "value": {
-                    "price": 9999999,
+                    "price": 12111,
                 },
             }
         }
