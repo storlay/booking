@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 from sqlalchemy import DECIMAL
+from sqlalchemy import CheckConstraint
 from sqlalchemy import ForeignKey
 from sqlalchemy import String
 from sqlalchemy import Text
@@ -32,3 +33,10 @@ class Rooms(Base, IntPkModelMixin):
 
     def __repr__(self):
         return f"<Room id={self.id!r}, title={self.title!r}>"
+
+    __table_args__ = (
+        CheckConstraint(
+            "price >= 0",
+            name="check_room_price",
+        ),
+    )
