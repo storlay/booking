@@ -1,13 +1,15 @@
 services:
-#  api:
-#    build:
-#      context: ../
-#    container_name: booking-api
-#    command: ./infra/commands/api.sh
-#    ports:
-#      - "8000:8000"
-#    depends_on:
-#      - db
+  api:
+    build:
+      context: ../
+    container_name: booking-api
+    command: ./infra/commands/api.sh
+    env_file:
+      - ../.env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
 
   db:
     image: postgres:17
