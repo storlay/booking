@@ -1,11 +1,19 @@
+from typing import Annotated
+
+from annotated_types import MaxLen
 from pydantic import BaseModel
 from pydantic import ConfigDict
-from pydantic import Field
 
 
 class HotelCreateOrUpdateSchema(BaseModel):
-    title: str
-    location: str
+    title: Annotated[
+        str,
+        MaxLen(100),
+    ]
+    location: Annotated[
+        str,
+        MaxLen(1000),
+    ]
 
 
 class HotelSchema(HotelCreateOrUpdateSchema):
@@ -17,5 +25,11 @@ class HotelSchema(HotelCreateOrUpdateSchema):
 
 
 class PartialUpdateHotelSchema(BaseModel):
-    title: str | None = Field(None)
-    location: str | None = Field(None)
+    title: Annotated[
+        str | None,
+        MaxLen(100),
+    ]
+    location: Annotated[
+        str | None,
+        MaxLen(1000),
+    ]
