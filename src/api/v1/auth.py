@@ -1,5 +1,4 @@
 from fastapi import APIRouter
-from fastapi import HTTPException
 from fastapi import status
 from sqlalchemy.exc import IntegrityError
 
@@ -7,8 +6,13 @@ from src.api.dependecies import AuthenticateUserDep
 from src.api.dependecies import CurrentUserDep
 from src.api.dependecies import CurrentUserForRefreshDep
 from src.db.database import async_session
+from src.exceptions.auth import IncorrectAuthCredsException
+from src.exceptions.auth import InvalidAuthTokenException
+from src.exceptions.auth import UserAlreadyExistsException
 from src.repositories.users import UsersRepository
 from src.schemas.auth import JWTInfoSchema
+from src.schemas.base import BaseHTTPExceptionSchema
+from src.schemas.base import BaseSuccessResponseSchema
 from src.schemas.users import UserAuthSchema
 from src.schemas.users import UserSchema
 from src.services.auth import AuthService
@@ -21,26 +25,40 @@ router = APIRouter(
 )
 
 
-@router.post("/register")
+@router.post(
+    "/register",
+    response_model=BaseSuccessResponseSchema,
+    status_code=status.HTTP_201_CREATED,
+    responses={
+        UserAlreadyExistsException.status_code: {
+            "model": BaseHTTPExceptionSchema,
+            "description": UserAlreadyExistsException.detail,
+        },
+    },
+)
 async def register_user(
     data: UserAuthSchema,
-):
+) -> BaseSuccessResponseSchema:
     data.password = AuthService.hash_password(data.password).decode("utf-8")
     async with async_session() as session:
         try:
             await UsersRepository(session).add(data)
             await session.commit()
         except IntegrityError:
-            raise HTTPException(
-                status.HTTP_400_BAD_REQUEST,
-                detail=f"User with email {data.email!r} already exists.",
-            )
-    return {"status": "OK"}
+            raise UserAlreadyExistsException
+    return BaseSuccessResponseSchema()
 
 
 @router.post(
     "/login",
     response_model=JWTInfoSchema,
+    status_code=status.HTTP_200_OK,
+    responses={
+        IncorrectAuthCredsException.status_code: {
+            "model": BaseHTTPExceptionSchema,
+            "description": IncorrectAuthCredsException.detail,
+        },
+    },
 )
 def login_user(
     user: AuthenticateUserDep,
@@ -57,6 +75,13 @@ def login_user(
     "/refresh",
     response_model=JWTInfoSchema,
     response_model_exclude_none=True,
+    status_code=status.HTTP_200_OK,
+    responses={
+        InvalidAuthTokenException.status_code: {
+            "model": BaseHTTPExceptionSchema,
+            "description": InvalidAuthTokenException.detail,
+        },
+    },
 )
 def refresh_jwt(
     user: CurrentUserForRefreshDep,
