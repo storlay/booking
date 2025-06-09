@@ -22,7 +22,7 @@ router = APIRouter(
 
 
 @router.get(
-    "/",
+    "",
     response_model=list[HotelSchema],
     status_code=status.HTTP_200_OK,
 )
@@ -70,7 +70,7 @@ async def get_hotel(
 
 
 @router.post(
-    "/",
+    "",
     response_model=HotelSchema,
     status_code=status.HTTP_201_CREATED,
 )

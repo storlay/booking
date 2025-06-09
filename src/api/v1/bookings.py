@@ -19,7 +19,7 @@ router = APIRouter(
 
 
 @router.get(
-    "/",
+    "",
     response_model=list[BookingSchema],
     status_code=status.HTTP_200_OK,
 )
@@ -42,7 +42,7 @@ async def get_me_bookings(
 
 
 @router.post(
-    "/",
+    "",
     response_model=BookingSchema,
     status_code=status.HTTP_201_CREATED,
     responses={
