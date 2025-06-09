@@ -8,7 +8,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 
-from src.config.config import settings
+from src.config import settings
 from src.db.database import Base
 from src.db.mixins import IntPkModelMixin
 

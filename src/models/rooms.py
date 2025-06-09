@@ -8,7 +8,7 @@ from sqlalchemy import Text
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 
-from src.config.config import settings
+from src.config import settings
 from src.db import Base
 from src.db.mixins import IntPkModelMixin
 

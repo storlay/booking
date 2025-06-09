@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from src.config.config import settings
+from src.config import settings
 
 
 class JWTInfoSchema(BaseModel):

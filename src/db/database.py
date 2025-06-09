@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import declared_attr
 
-from src.config.config import settings
+from src.config import settings
 
 
 async_engine = create_async_engine(

@@ -1,4 +1,4 @@
-from src.config.config import settings
+from src.config import settings
 from src.exceptions.auth import InvalidAuthTokenException
 
 

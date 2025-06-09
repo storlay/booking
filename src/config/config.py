@@ -72,6 +72,3 @@ class Settings(BaseSettings):
     jwt: JWTSettings = JWTSettings()
     models: ModelsSettings = ModelsSettings()
     pagination: PaginationSettings = PaginationSettings()
-
-
-settings = Settings()

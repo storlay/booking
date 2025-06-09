@@ -4,7 +4,7 @@ from datetime import timedelta
 
 import jwt
 
-from src.config.config import settings
+from src.config import settings
 from src.schemas.users import UserSchema
 
 
