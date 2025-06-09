@@ -8,6 +8,20 @@ from pydantic import model_validator
 from src.schemas.base import PositiveDecimal
 
 
+class BookingCreateSchema(BaseModel):
+    user_id: int
+    price: PositiveDecimal
+    date_from: date
+    date_to: date
+    room_id: int
+
+
+class BookingSchema(BookingCreateSchema):
+    model_config = ConfigDict(
+        from_attributes=True,
+    )
+
+
 class BookingCreateRequestSchema(BaseModel):
     date_from: date
     date_to: date
@@ -28,14 +42,3 @@ class BookingCreateRequestSchema(BaseModel):
         if self.date_from > self.date_to:
             raise ValueError("`date_from` cannot be earlier than `date_to`")
         return self
-
-
-class BookingCreateSchema(BookingCreateRequestSchema):
-    user_id: int
-    price: PositiveDecimal
-
-
-class BookingSchema(BookingCreateSchema):
-    model_config = ConfigDict(
-        from_attributes=True,
-    )
