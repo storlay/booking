@@ -1,9 +1,11 @@
 from datetime import date
+from datetime import datetime
 from decimal import Decimal
 
 from sqlalchemy import DECIMAL
 from sqlalchemy import CheckConstraint
 from sqlalchemy import ForeignKey
+from sqlalchemy import func
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
@@ -27,6 +29,9 @@ class Bookings(Base, IntPkModelMixin):
             precision=settings.models.DECIMAL_PRECISION,
             scale=settings.models.DECIMAL_SCALE,
         )
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        server_default=func.now(),
     )
 
     @hybrid_property
