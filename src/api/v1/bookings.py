@@ -4,6 +4,7 @@ from sqlalchemy.exc import NoResultFound
 
 from src.api.dependecies import CurrentUserDep
 from src.api.dependecies import DbTransactionDep
+from src.api.dependecies import PaginationDep
 from src.exceptions.auth import InvalidAuthTokenException
 from src.exceptions.bookings import InvalidRoomIdForBookingException
 from src.schemas.base import BaseHTTPExceptionSchema
@@ -25,8 +26,12 @@ router = APIRouter(
 )
 async def get_all_bookings(
     transaction: DbTransactionDep,
+    pagination: PaginationDep,
 ) -> list[BookingSchema]:
-    return await transaction.bookings.get_all()
+    return await transaction.bookings.get_all(
+        pagination.limit,
+        pagination.offset,
+    )
 
 
 @router.get(
@@ -37,8 +42,13 @@ async def get_all_bookings(
 async def get_me_bookings(
     user: CurrentUserDep,
     transaction: DbTransactionDep,
+    pagination: PaginationDep,
 ) -> list[BookingSchema]:
-    return await transaction.bookings.get_filtered(user_id=user.id)
+    return await transaction.bookings.get_filtered(
+        limit=pagination.limit,
+        offset=pagination.offset,
+        user_id=user.id,
+    )
 
 
 @router.post(
