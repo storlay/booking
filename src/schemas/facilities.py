@@ -20,3 +20,16 @@ class FacilitySchema(FacilityCreateSchema):
     model_config = ConfigDict(
         from_attributes=True,
     )
+
+
+class RoomFacilityAddSchema(BaseModel):
+    room_id: IntegerId
+    facility_id: IntegerId
+
+    model_config = ConfigDict(
+        from_attributes=True,
+    )
+
+
+class RoomFacilitySchema(RoomFacilityAddSchema):
+    id: IntegerId
