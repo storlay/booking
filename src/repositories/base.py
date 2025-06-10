@@ -22,9 +22,18 @@ class BaseRepository:
 
     async def get_filtered(
         self,
+        limit: int,
+        offset: int,
+        *filter,
         **filter_by,
     ) -> list[BaseModel | Any]:
-        query = select(self.model).filter_by(**filter_by)
+        query = (
+            select(self.model)
+            .filter(*filter)
+            .filter_by(**filter_by)
+            .limit(limit)
+            .offset(offset)
+        )
         result = await self.session.execute(query)
         # fmt: off
         return [
@@ -35,10 +44,15 @@ class BaseRepository:
 
     async def get_all(
         self,
+        limit: int,
+        offset: int,
         *args,
         **kwargs,
     ) -> list[BaseModel | Any]:
-        return await self.get_filtered()
+        return await self.get_filtered(
+            limit=limit,
+            offset=offset,
+        )
 
     async def get_one_or_none(
         self,
