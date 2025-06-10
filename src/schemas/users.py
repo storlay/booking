@@ -7,6 +7,8 @@ from pydantic import ConfigDict
 from pydantic import EmailStr
 from pydantic import field_validator
 
+from src.schemas.base import IntegerId
+
 
 class UserAuthSchema(BaseModel):
     email: EmailStr
@@ -26,7 +28,7 @@ class UserAuthSchema(BaseModel):
 
 
 class UserSchema(BaseModel):
-    id: int
+    id: IntegerId
     email: EmailStr
     first_name: str | None
     last_name: str | None

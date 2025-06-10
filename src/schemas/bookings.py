@@ -6,19 +6,20 @@ from pydantic import ConfigDict
 from pydantic import field_validator
 from pydantic import model_validator
 
+from src.schemas.base import IntegerId
 from src.schemas.base import PositiveDecimal
 
 
 class BookingCreateSchema(BaseModel):
-    user_id: int
+    user_id: IntegerId
     price: PositiveDecimal
     date_from: date
     date_to: date
-    room_id: int
+    room_id: IntegerId
 
 
 class BookingSchema(BookingCreateSchema):
-    id: int
+    id: IntegerId
     created_at: datetime
 
     model_config = ConfigDict(
@@ -29,7 +30,7 @@ class BookingSchema(BookingCreateSchema):
 class BookingCreateRequestSchema(BaseModel):
     date_from: date
     date_to: date
-    room_id: int
+    room_id: IntegerId
 
     @field_validator(
         "date_from",

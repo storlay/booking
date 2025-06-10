@@ -4,6 +4,8 @@ from annotated_types import MaxLen
 from pydantic import BaseModel
 from pydantic import ConfigDict
 
+from src.schemas.base import IntegerId
+
 
 class FacilityCreateSchema(BaseModel):
     title: Annotated[
@@ -13,7 +15,7 @@ class FacilityCreateSchema(BaseModel):
 
 
 class FacilitySchema(FacilityCreateSchema):
-    id: int
+    id: IntegerId
 
     model_config = ConfigDict(
         from_attributes=True,

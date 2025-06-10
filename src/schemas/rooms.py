@@ -7,6 +7,7 @@ from annotated_types import MinLen
 from pydantic import BaseModel
 from pydantic import ConfigDict
 
+from src.schemas.base import IntegerId
 from src.schemas.base import PositiveDecimal
 
 
@@ -15,23 +16,24 @@ class RoomCreateRequestSchema(BaseModel):
         str,
         MaxLen(100),
     ]
-    description: Annotated[
-        str | None,
-        MinLen(10),
-    ]
     price: PositiveDecimal
     quantity: Annotated[
         int,
         Ge(0),
     ]
+    description: Annotated[
+        str | None,
+        MinLen(10),
+    ] = None
+    facilities_ids: list[IntegerId]
 
 
 class RoomCreateSchema(RoomCreateRequestSchema):
-    hotel_id: int
+    hotel_id: IntegerId
 
 
 class RoomSchema(RoomCreateSchema):
-    id: int
+    id: IntegerId
 
     model_config = ConfigDict(
         from_attributes=True,
@@ -59,9 +61,6 @@ class RoomPartiallyUpdateSchema(BaseModel):
 
 
 class RoomsQueryParamsSchema(BaseModel):
-    hotel_id: Annotated[
-        int,
-        Ge(1),
-    ]
+    hotel_id: IntegerId
     date_from: date
     date_to: date

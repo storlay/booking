@@ -12,3 +12,11 @@ PositiveDecimal = Annotated[
     Ge(0),
     Le(settings.models.MAX_DECIMAL_VALUE),
 ]
+PositiveInteger = Annotated[
+    int,
+    Ge(0),
+]
+IntegerId = Annotated[
+    int,
+    Ge(1),
+]
