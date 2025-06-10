@@ -1,12 +1,16 @@
+from datetime import date
+
 from fastapi import APIRouter
 from fastapi import Body
-from fastapi import Query
 from fastapi import status
 from sqlalchemy.exc import NoResultFound
 from starlette.status import HTTP_200_OK
 
+from src.api.dependecies import CurrentUserDep
 from src.api.dependecies import DbTransactionDep
+from src.api.dependecies import HotelsParamsDep
 from src.api.dependecies import PaginationDep
+from src.api.v1.utils import get_hotels_filters_from_params
 from src.exceptions.hotels import HotelNotFoundException
 from src.schemas.base import BaseHTTPExceptionSchema
 from src.schemas.base import BaseSuccessResponseSchema
@@ -27,22 +31,38 @@ router = APIRouter(
     status_code=status.HTTP_200_OK,
 )
 async def get_hotels(
+    _user: CurrentUserDep,
     pagination: PaginationDep,
     transaction: DbTransactionDep,
-    title: str = Query(
-        None,
-        description="Hotel's title",
-    ),
-    location: str = Query(
-        None,
-        description="Hotel's location",
-    ),
+    params: HotelsParamsDep,
 ) -> list[HotelSchema]:
-    return await transaction.hotels.get_all(
-        title,
-        location,
+    filters = get_hotels_filters_from_params(params)
+    return await transaction.hotels.get_filtered(
         pagination.limit,
         pagination.offset,
+        *filters,
+    )
+
+
+@router.get(
+    "/available",
+    response_model=list[HotelSchema],
+    status_code=status.HTTP_200_OK,
+)
+async def get_available_hotels(
+    pagination: PaginationDep,
+    transaction: DbTransactionDep,
+    params: HotelsParamsDep,
+    date_from: date,
+    date_to: date,
+) -> list[HotelSchema]:
+    filters = get_hotels_filters_from_params(params)
+    return await transaction.hotels.get_with_available_rooms(
+        date_from,
+        date_to,
+        pagination.limit,
+        pagination.offset,
+        filters,
     )
 
 

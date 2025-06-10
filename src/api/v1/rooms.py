@@ -6,6 +6,7 @@ from sqlalchemy.exc import NoResultFound
 
 from src.api.dependecies import DbTransactionDep
 from src.api.dependecies import PaginationDep
+from src.api.dependecies import RoomsParamsDep
 from src.exceptions.hotels import HotelNotFoundException
 from src.exceptions.rooms import RoomNotFoundException
 from src.schemas.base import BaseHTTPExceptionSchema
@@ -29,14 +30,16 @@ router = APIRouter(
     status_code=status.HTTP_200_OK,
 )
 async def get_all_hotel_rooms(
-    pagination: PaginationDep,
     transaction: DbTransactionDep,
-    hotel_id: int,
+    pagination: PaginationDep,
+    params: RoomsParamsDep,
 ) -> list[RoomSchema]:
-    return await transaction.rooms.get_all_for_hotel(
-        hotel_id,
-        pagination.limit,
-        pagination.offset,
+    return await transaction.rooms.get_available_for_hotel(
+        hotel_id=params.hotel_id,
+        date_from=params.date_from,
+        date_to=params.date_to,
+        limit=pagination.limit,
+        offset=pagination.offset,
     )
 
 
