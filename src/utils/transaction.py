@@ -3,6 +3,7 @@ from abc import abstractmethod
 from typing import Callable
 
 from src.repositories.bookings import BookingsRepository
+from src.repositories.facilities import FacilitiesRepository
 from src.repositories.hotels import HotelsRepository
 from src.repositories.rooms import RoomsRepository
 from src.repositories.users import UsersRepository
@@ -12,6 +13,7 @@ class BaseManager(ABC):
     users: UsersRepository
     hotels: HotelsRepository
     rooms: RoomsRepository
+    facilities: FacilitiesRepository
     bookings: BookingsRepository
 
     @abstractmethod
@@ -44,6 +46,7 @@ class TransactionManager(BaseManager):
         self.users = UsersRepository(self.session)
         self.hotels = HotelsRepository(self.session)
         self.rooms = RoomsRepository(self.session)
+        self.facilities = FacilitiesRepository(self.session)
         self.bookings = BookingsRepository(self.session)
         return self
 
