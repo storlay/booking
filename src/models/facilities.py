@@ -9,7 +9,10 @@ from src.db.mixins import IntPkModelMixin
 
 
 class Facilities(Base, IntPkModelMixin):
-    title: Mapped[str] = mapped_column(String(100))
+    title: Mapped[str] = mapped_column(
+        String(100),
+        unique=True,
+    )
 
     def __repr__(self):
         return f"<Facility id={self.id!r}, title={self.title!r}>"
