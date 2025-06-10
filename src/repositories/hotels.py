@@ -1,7 +1,11 @@
+from datetime import date
+
 from sqlalchemy import select
 
 from src.models.hotels import Hotels
+from src.models.rooms import Rooms
 from src.repositories.base import BaseRepository
+from src.repositories.utils import rooms_ids_for_booking
 from src.schemas.hotels import HotelSchema
 
 
@@ -9,23 +13,26 @@ class HotelsRepository(BaseRepository):
     model = Hotels
     schema = HotelSchema
 
-    async def get_all(
+    def get_with_available_rooms(
         self,
-        title: str | None,
-        location: str | None,
+        date_from: date,
+        date_to: date,
         limit: int,
         offset: int,
-    ) -> list[HotelSchema]:
-        query = select(Hotels)
-        if title:
-            query = query.filter(Hotels.title.icontains(title))
-        if location:
-            query = query.filter(Hotels.location.icontains(location))
-        query = query.limit(limit).offset(offset)
-        result = await self.session.execute(query)
-        # fmt: off
-        return [
-            self.schema.model_validate(model)
-            for model in result.scalars().all()
-        ]
-        # fmt: on
+        filters: list[str | None],
+    ):
+        available_rooms_ids = rooms_ids_for_booking(
+            date_from,
+            date_to,
+        )
+        hotels_ids = (
+            select(Rooms.hotel_id)
+            .select_from(Rooms)
+            .filter(Rooms.id.in_(available_rooms_ids))
+        )
+        filters = filters + [Hotels.id.in_(hotels_ids)]
+        return self.get_filtered(
+            limit,
+            offset,
+            *filters,
+        )
