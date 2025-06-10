@@ -34,27 +34,25 @@ def rooms_ids_for_booking(
         .outerjoin(rooms_count, Rooms.id == rooms_count.c.room_id)
         .cte(name="rooms_left")
     )
-    rooms_ids_for_hotel = (
+    rooms_ids = (
         select(Rooms.id)
         .select_from(Rooms)
     )
     if hotel_id:
-        rooms_ids_for_hotel = (
-            rooms_ids_for_hotel
+        rooms_ids = (
+            rooms_ids
             .filter_by(hotel_id=hotel_id)
         )
-    rooms_ids_for_hotel = (
-        rooms_ids_for_hotel
+    rooms_ids = (
+        rooms_ids
         .subquery(name="rooms_ids_for_hotel")
     )
-
-    rooms_ids = (
+    return (
         select(rooms_left.c.room_id)
         .select_from(rooms_left)
         .filter(
             rooms_left.c.rooms_left > 0,
-            rooms_left.c.room_id.in_(rooms_ids_for_hotel),
+            rooms_left.c.room_id.in_(rooms_ids),
         )
     )
     # fmt: on
-    return rooms_ids
