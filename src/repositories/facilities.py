@@ -30,9 +30,9 @@ class RoomsFacilitiesRepository(BaseRepository):
             .filter_by(room_id=room_id)
         )
         result = await self.session.execute(current_facilities_query)
-        current_fas_ids = result.scalars().all()
-        ids_to_delete = list(set(current_fas_ids) - set(facilities_ids))
-        ids_to_insert = list(set(facilities_ids) - set(current_fas_ids))
+        current_facilities_ids = result.scalars().all()
+        ids_to_delete = list(set(current_facilities_ids) - set(facilities_ids))
+        ids_to_insert = list(set(facilities_ids) - set(current_facilities_ids))
         if ids_to_delete:
             stmt = (
                 delete(self.model)
