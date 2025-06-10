@@ -22,8 +22,8 @@ class BaseRepository:
 
     async def get_filtered(
         self,
-        limit: int,
-        offset: int,
+        limit: int = None,
+        offset: int = None,
         *filter,
         **filter_by,
     ) -> list[BaseModel | Any]:
@@ -31,9 +31,14 @@ class BaseRepository:
             select(self.model)
             .filter(*filter)
             .filter_by(**filter_by)
-            .limit(limit)
-            .offset(offset)
         )
+        if limit and offset:
+            query = (
+                query
+                .limit(limit)
+                .offset(offset)
+            )
+
         result = await self.session.execute(query)
         # fmt: off
         return [
@@ -98,6 +103,18 @@ class BaseRepository:
         result = await self.session.execute(stmt)
         model = result.scalar_one()
         return self.schema.model_validate(model)
+
+    async def add_bulk(
+        self,
+        data: list[BaseModel],
+    ) -> None:
+        # fmt: off
+        stmt = (
+            insert(self.model)
+            .values([item.model_dump() for item in data])
+        )
+        # fmt: o
+        await self.session.execute(stmt)
 
     async def update_one(
         self,
