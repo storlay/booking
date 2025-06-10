@@ -1,5 +1,4 @@
 from fastapi import APIRouter
-from fastapi import Body
 from fastapi import status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.exc import NoResultFound
@@ -11,6 +10,7 @@ from src.exceptions.hotels import HotelNotFoundException
 from src.exceptions.rooms import RoomNotFoundException
 from src.schemas.base import BaseHTTPExceptionSchema
 from src.schemas.base import BaseSuccessResponseSchema
+from src.schemas.facilities import RoomFacilityAddSchema
 from src.schemas.rooms import RoomCreateRequestSchema
 from src.schemas.rooms import RoomCreateSchema
 from src.schemas.rooms import RoomPartiallyUpdateSchema
@@ -82,30 +82,29 @@ async def get_hotel_room(
 async def add_room_to_hotel(
     hotel_id: int,
     transaction: DbTransactionDep,
-    data: RoomCreateRequestSchema = Body(
-        openapi_examples={
-            "1": {
-                "summary": "Luxe",
-                "value": {
-                    "title": "Luxe",
-                    "description": "Super Luxe apartment",
-                    "price": 12121,
-                    "quantity": 2,
-                },
-            }
-        }
-    ),
+    data: RoomCreateRequestSchema,
 ) -> RoomSchema:
-    data = RoomCreateSchema(
+    room_data = RoomCreateSchema(
         hotel_id=hotel_id,
         **data.model_dump(),
     )
     try:
-        result = await transaction.rooms.add(data)
+        room = await transaction.rooms.add(room_data)
+        if data.facilities_ids:
+            facilities_to_assign = [
+                RoomFacilityAddSchema(
+                    room_id=room.id,
+                    facility_id=facility_id,
+                )
+                for facility_id in data.facilities_ids
+            ]
+            await transaction.rooms_facilities.add_bulk(
+                facilities_to_assign,
+            )
         await transaction.commit()
     except IntegrityError:
         raise HotelNotFoundException
-    return result
+    return room
 
 
 @router.put(
@@ -123,26 +122,24 @@ async def update_hotel_room(
     hotel_id: int,
     room_id: int,
     transaction: DbTransactionDep,
-    data: RoomUpdateSchema = Body(
-        openapi_examples={
-            "1": {
-                "summary": "Luxe",
-                "value": {
-                    "title": "Other Luxe",
-                    "description": "Very very luxe apartment",
-                    "price": 999,
-                    "quantity": 1,
-                },
-            }
-        }
-    ),
+    data: RoomUpdateSchema,
 ) -> BaseSuccessResponseSchema:
+    room_data = RoomCreateSchema(
+        hotel_id=hotel_id,
+        **data.model_dump(),
+    )
     try:
         await transaction.rooms.update_one(
-            data,
+            room_data,
             hotel_id=hotel_id,
             id=room_id,
         )
+        if data.facilities_ids is not None:
+            await transaction.rooms_facilities.set_room_facilities(
+                room_id,
+                data.facilities_ids,
+            )
+
         await transaction.commit()
     except NoResultFound:
         raise RoomNotFoundException
@@ -164,16 +161,7 @@ async def update_hotel_room_partial(
     hotel_id: int,
     room_id: int,
     transaction: DbTransactionDep,
-    data: RoomPartiallyUpdateSchema = Body(
-        openapi_examples={
-            "1": {
-                "summary": "Luxe",
-                "value": {
-                    "price": 12111,
-                },
-            }
-        }
-    ),
+    data: RoomPartiallyUpdateSchema,
 ) -> BaseSuccessResponseSchema:
     try:
         await transaction.rooms.update_one(
@@ -182,6 +170,11 @@ async def update_hotel_room_partial(
             hotel_id=hotel_id,
             id=room_id,
         )
+        if data.facilities_ids is not None:
+            await transaction.rooms_facilities.set_room_facilities(
+                room_id,
+                data.facilities_ids,
+            )
         await transaction.commit()
     except NoResultFound:
         raise RoomNotFoundException
