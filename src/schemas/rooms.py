@@ -1,3 +1,4 @@
+from datetime import date
 from typing import Annotated
 
 from annotated_types import Ge
@@ -45,13 +46,22 @@ class RoomPartiallyUpdateSchema(BaseModel):
     title: Annotated[
         str | None,
         MaxLen(100),
-    ]
+    ] = None
     description: Annotated[
         str | None,
         MinLen(10),
-    ]
-    price: PositiveDecimal
+    ] = None
+    price: PositiveDecimal = None
     quantity: Annotated[
         int | None,
         Ge(0),
+    ] = None
+
+
+class RoomsQueryParamsSchema(BaseModel):
+    hotel_id: Annotated[
+        int,
+        Ge(1),
     ]
+    date_from: date
+    date_to: date

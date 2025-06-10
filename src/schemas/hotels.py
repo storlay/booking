@@ -28,8 +28,19 @@ class PartialUpdateHotelSchema(BaseModel):
     title: Annotated[
         str | None,
         MaxLen(100),
-    ]
+    ] = None
     location: Annotated[
         str | None,
         MaxLen(1000),
-    ]
+    ] = None
+
+
+class HotelsQueryParamsSchema(PartialUpdateHotelSchema):
+    title: Annotated[
+        str | None,
+        MaxLen(100),
+    ] = None
+    location: Annotated[
+        str | None,
+        MaxLen(1000),
+    ] = None
