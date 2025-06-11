@@ -1,4 +1,5 @@
 from typing import Any
+from typing import Iterable
 
 from pydantic import BaseModel
 from sqlalchemy import delete
@@ -6,6 +7,7 @@ from sqlalchemy import insert
 from sqlalchemy import select
 from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql.base import ExecutableOption
 
 from src.db.database import Base
 
@@ -24,6 +26,7 @@ class BaseRepository:
         self,
         limit: int = None,
         offset: int = None,
+        query_options: Iterable[ExecutableOption] | None = None,
         *filter,
         **filter_by,
     ) -> list[BaseModel | Any]:
@@ -32,6 +35,8 @@ class BaseRepository:
             .filter(*filter)
             .filter_by(**filter_by)
         )
+        if query_options:
+            query = query.options(*query_options)
         if limit and offset:
             query = (
                 query
@@ -40,10 +45,15 @@ class BaseRepository:
             )
 
         result = await self.session.execute(query)
+        models = (
+            result.scalars().unique().all()
+            if query_options
+            else result.scalars().all()
+        )
         # fmt: off
         return [
             self.schema.model_validate(model)
-            for model in result.scalars().all()
+            for model in models
         ]
         # fmt: on
 
@@ -77,6 +87,7 @@ class BaseRepository:
 
     async def get_one(
         self,
+        query_options: Iterable[ExecutableOption] | None = None,
         **filter_by,
     ) -> BaseModel | Any:
         # fmt: off
@@ -85,6 +96,8 @@ class BaseRepository:
             .filter_by(**filter_by)
         )
         # fmt: on
+        if query_options:
+            query = query.options(*query_options)
         result = await self.session.execute(query)
         model = result.scalar_one()
         return self.schema.model_validate(model)

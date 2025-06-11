@@ -60,7 +60,7 @@ async def get_hotel_room(
     transaction: DbTransactionDep,
 ) -> RoomSchema:
     try:
-        return await transaction.rooms.get_one(
+        return await transaction.rooms.get_one_with_full_info(
             hotel_id=hotel_id,
             id=room_id,
         )

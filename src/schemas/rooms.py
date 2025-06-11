@@ -9,6 +9,7 @@ from pydantic import ConfigDict
 from src.schemas.base import IntegerId
 from src.schemas.base import PositiveDecimal
 from src.schemas.base import PositiveInteger
+from src.schemas.facilities import FacilitySchema
 
 
 class RoomCreateRequestSchema(BaseModel):
@@ -41,6 +42,7 @@ class RoomCreateSchema(BaseModel):
 
 class RoomSchema(RoomCreateSchema):
     id: IntegerId
+    facilities: list[FacilitySchema]
 
     model_config = ConfigDict(
         from_attributes=True,
