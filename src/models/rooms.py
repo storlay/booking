@@ -39,4 +39,8 @@ class Rooms(Base, IntPkModelMixin):
             "price >= 0",
             name="check_room_price",
         ),
+        CheckConstraint(
+            "quantity >= 0",
+            name="check_room_quantity",
+        ),
     )
