@@ -113,7 +113,7 @@ class BaseRepository:
             insert(self.model)
             .values([item.model_dump() for item in data])
         )
-        # fmt: o
+        # fmt: on
         await self.session.execute(stmt)
 
     async def update_one(
