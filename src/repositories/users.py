@@ -3,13 +3,13 @@ from sqlalchemy import select
 
 from src.models.users import Users
 from src.repositories.base import BaseRepository
-from src.schemas.users import UserSchema
+from src.repositories.mappers.users import UsersDataMapper
 from src.schemas.users import UserWithPasswordSchema
 
 
 class UsersRepository(BaseRepository):
     model = Users
-    schema = UserSchema
+    mapper = UsersDataMapper
 
     async def get_one_or_none_with_password(
         self,

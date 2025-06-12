@@ -10,11 +10,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.base import ExecutableOption
 
 from src.db.database import Base
+from src.repositories.mappers.base import BaseDataMapper
 
 
 class BaseRepository:
     model: type[Base] = None
-    schema: BaseModel = None
+    mapper: type[BaseDataMapper] = None
 
     def __init__(
         self,
@@ -37,7 +38,7 @@ class BaseRepository:
         )
         if query_options:
             query = query.options(*query_options)
-        if limit and offset:
+        if limit:
             query = (
                 query
                 .limit(limit)
@@ -52,7 +53,7 @@ class BaseRepository:
         )
         # fmt: off
         return [
-            self.schema.model_validate(model)
+            self.mapper.map_to_domain_entity(model)
             for model in models
         ]
         # fmt: on
@@ -83,7 +84,7 @@ class BaseRepository:
         model = result.scalar_one_or_none()
         if model is None:
             return model
-        return self.schema.model_validate(model)
+        return self.mapper.map_to_domain_entity(model)
 
     async def get_one(
         self,
@@ -100,7 +101,7 @@ class BaseRepository:
             query = query.options(*query_options)
         result = await self.session.execute(query)
         model = result.scalar_one()
-        return self.schema.model_validate(model)
+        return self.mapper.map_to_domain_entity(model)
 
     async def add(
         self,
@@ -115,7 +116,7 @@ class BaseRepository:
         # fmt: on
         result = await self.session.execute(stmt)
         model = result.scalar_one()
-        return self.schema.model_validate(model)
+        return self.mapper.map_to_domain_entity(model)
 
     async def add_bulk(
         self,

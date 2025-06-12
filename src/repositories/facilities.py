@@ -5,25 +5,25 @@ from sqlalchemy import select
 from src.models.facilities import Facilities
 from src.models.facilities import RoomsFacilities
 from src.repositories.base import BaseRepository
-from src.schemas.facilities import FacilitySchema
+from src.repositories.mappers.facilities import FacilitiesDataMapper
+from src.repositories.mappers.facilities import RoomsFacilitiesDataMapper
 from src.schemas.facilities import RoomFacilityAddSchema
-from src.schemas.facilities import RoomFacilitySchema
 
 
 class FacilitiesRepository(BaseRepository):
     model = Facilities
-    schema = FacilitySchema
+    mapper = FacilitiesDataMapper
 
 
 class RoomsFacilitiesRepository(BaseRepository):
     model = RoomsFacilities
-    schema = RoomFacilitySchema
+    mapper = RoomsFacilitiesDataMapper
 
     async def set_room_facilities(
         self,
         room_id: int,
         facilities_ids: list[int],
-    ):
+    ) -> None:
         # fmt: off
         current_facilities_query = (
             select(self.model.facility_id)

@@ -5,13 +5,13 @@ from sqlalchemy import select
 from src.models.hotels import Hotels
 from src.models.rooms import Rooms
 from src.repositories.base import BaseRepository
+from src.repositories.mappers.hotels import HotelsDataMapper
 from src.repositories.utils import rooms_ids_for_booking
-from src.schemas.hotels import HotelSchema
 
 
 class HotelsRepository(BaseRepository):
     model = Hotels
-    schema = HotelSchema
+    mapper = HotelsDataMapper
 
     def get_with_available_rooms(
         self,
