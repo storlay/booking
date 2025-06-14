@@ -1,5 +1,4 @@
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator
 
 from fastapi import FastAPI
 from fastapi_cache import FastAPICache
@@ -10,7 +9,7 @@ from src.setup import redis_manager
 
 
 @asynccontextmanager
-async def lifespan(_: FastAPI) -> AsyncGenerator[None]:
+async def lifespan(_: FastAPI):
     await redis_manager.connect()
     FastAPICache.init(
         RedisBackend(redis_manager.redis),
