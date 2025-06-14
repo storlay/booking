@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 from fastapi import status
+from fastapi_cache.decorator import cache
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.exc import NoResultFound
 
@@ -29,6 +30,7 @@ router = APIRouter(
     response_model=list[RoomSchema],
     status_code=status.HTTP_200_OK,
 )
+@cache(expire=60)
 async def get_all_hotel_rooms(
     transaction: DbTransactionDep,
     pagination: PaginationDep,
@@ -54,6 +56,7 @@ async def get_all_hotel_rooms(
         },
     },
 )
+@cache(expire=60)
 async def get_hotel_room(
     hotel_id: int,
     room_id: int,

@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 from fastapi import status
+from fastapi_cache.decorator import cache
 from sqlalchemy.exc import NoResultFound
 
 from src.api.dependecies import CurrentUserDep
@@ -24,6 +25,7 @@ router = APIRouter(
     response_model=list[BookingSchema],
     status_code=status.HTTP_200_OK,
 )
+@cache(10)
 async def get_all_bookings(
     transaction: DbTransactionDep,
     pagination: PaginationDep,
@@ -39,6 +41,7 @@ async def get_all_bookings(
     response_model=list[BookingSchema],
     status_code=status.HTTP_200_OK,
 )
+@cache(10)
 async def get_me_bookings(
     user: CurrentUserDep,
     transaction: DbTransactionDep,

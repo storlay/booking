@@ -3,6 +3,7 @@ from datetime import date
 from fastapi import APIRouter
 from fastapi import Body
 from fastapi import status
+from fastapi_cache.decorator import cache
 from sqlalchemy.exc import NoResultFound
 from starlette.status import HTTP_200_OK
 
@@ -30,6 +31,7 @@ router = APIRouter(
     response_model=list[HotelSchema],
     status_code=status.HTTP_200_OK,
 )
+@cache(expire=30)
 async def get_hotels(
     _user: CurrentUserDep,
     pagination: PaginationDep,
@@ -49,6 +51,7 @@ async def get_hotels(
     response_model=list[HotelSchema],
     status_code=status.HTTP_200_OK,
 )
+@cache(expire=15)
 async def get_available_hotels(
     pagination: PaginationDep,
     transaction: DbTransactionDep,
@@ -77,6 +80,7 @@ async def get_available_hotels(
         },
     },
 )
+@cache(expire=60)
 async def get_hotel(
     hotel_id: int,
     transaction: DbTransactionDep,

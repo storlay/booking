@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 from fastapi import status
+from fastapi_cache.decorator import cache
 from sqlalchemy.exc import IntegrityError
 
 from src.api.dependecies import DbTransactionDep
@@ -21,6 +22,7 @@ router = APIRouter(
     status_code=status.HTTP_200_OK,
     response_model=list[FacilitySchema],
 )
+@cache(expire=60)
 async def get_all_facilities(
     transaction: DbTransactionDep,
     pagination: PaginationDep,
