@@ -51,6 +51,11 @@ class JWTSettings(BaseModel):
     TOKEN_TYPE_FIELD: str = "type"
 
 
+class RedisSettings(BaseModel):
+    HOST: str = os.getenv("REDIS_HOST")
+    PORT: int = os.getenv("REDIS_PORT")
+
+
 class ModelsSettings(BaseModel):
     DECIMAL_PRECISION: int = 10
     DECIMAL_SCALE: int = 2
@@ -70,5 +75,6 @@ class PaginationSettings(BaseModel):
 class Settings(BaseSettings):
     db: DatabaseSettings = DatabaseSettings()
     jwt: JWTSettings = JWTSettings()
+    redis: RedisSettings = RedisSettings()
     models: ModelsSettings = ModelsSettings()
     pagination: PaginationSettings = PaginationSettings()
