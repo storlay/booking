@@ -4,6 +4,7 @@ from src.api.v1.auth import router as auth_router
 from src.api.v1.bookings import router as bookings_router
 from src.api.v1.facilities import router as facilities_router
 from src.api.v1.hotels import router as hotels_router
+from src.api.v1.images import router as images_router
 from src.api.v1.rooms import router as rooms_router
 
 
@@ -17,6 +18,7 @@ routers = (
     rooms_router,
     facilities_router,
     bookings_router,
+    images_router,
 )
 
 for router in routers:
