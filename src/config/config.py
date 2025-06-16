@@ -55,10 +55,18 @@ class RedisSettings(BaseModel):
     HOST: str = os.getenv("REDIS_HOST")
     PORT: int = os.getenv("REDIS_PORT")
 
+    @computed_field
+    @property
+    def URL(self) -> str:
+        return f"redis://{self.HOST}:{self.PORT}"
+
 
 class ModelsSettings(BaseModel):
     DECIMAL_PRECISION: int = 10
     DECIMAL_SCALE: int = 2
+
+    DEFAULT_IMAGE_PATH: Path = BASE_DIR / "src" / "static" / "images"
+    DEFAULT_IMAGE_SIZES: list[int] = [1000, 500, 300]
 
     @computed_field
     @property
