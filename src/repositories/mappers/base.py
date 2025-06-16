@@ -16,15 +16,18 @@ ModelType = TypeVar(
 
 
 class BaseDataMapper:
-    model: type[SchemaType] = None
-    schema: type[ModelType] = None
+    model: type[ModelType] = None
+    schema: type[SchemaType] = None
+    schema_with_rels: type[SchemaType] | None = None
 
     @classmethod
     def map_to_domain_entity(
         cls,
         model: Base,
+        with_rels: bool = False,
     ) -> type[SchemaType]:
-        return cls.schema.model_validate(
+        schema = cls.schema_with_rels if with_rels and cls.schema_with_rels else cls.schema
+        return schema.model_validate(
             model,
             from_attributes=True,
         )
