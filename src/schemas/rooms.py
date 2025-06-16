@@ -4,7 +4,6 @@ from typing import Annotated
 from annotated_types import MaxLen
 from annotated_types import MinLen
 from pydantic import BaseModel
-from pydantic import ConfigDict
 
 from src.schemas.base import IntegerId
 from src.schemas.base import PositiveDecimal
@@ -19,7 +18,7 @@ class RoomCreateRequestSchema(BaseModel):
     ]
     price: PositiveDecimal
     quantity: PositiveInteger
-    facilities_ids: list[IntegerId]  | None = None
+    facilities_ids: list[IntegerId] | None = None
     description: Annotated[
         str | None,
         MinLen(10),
@@ -42,11 +41,10 @@ class RoomCreateSchema(BaseModel):
 
 class RoomSchema(RoomCreateSchema):
     id: IntegerId
-    facilities: list[FacilitySchema]
 
-    model_config = ConfigDict(
-        from_attributes=True,
-    )
+
+class RoomWithRelsSchema(RoomSchema):
+    facilities: list[FacilitySchema | None]
 
 
 class RoomUpdateSchema(RoomCreateRequestSchema):

@@ -33,13 +33,14 @@ class UserSchema(BaseModel):
     first_name: str | None
     last_name: str | None
 
-    model_config = ConfigDict(
-        from_attributes=True,
-    )
 
 
 class UserWithPasswordSchema(UserSchema):
     password: bytes
+
+    model_config = ConfigDict(
+        from_attributes=True,
+    )
 
     @field_validator(
         "password",

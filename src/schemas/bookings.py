@@ -2,7 +2,6 @@ from datetime import date
 from datetime import datetime
 
 from pydantic import BaseModel
-from pydantic import ConfigDict
 from pydantic import field_validator
 from pydantic import model_validator
 
@@ -21,10 +20,6 @@ class BookingCreateSchema(BaseModel):
 class BookingSchema(BookingCreateSchema):
     id: IntegerId
     created_at: datetime
-
-    model_config = ConfigDict(
-        from_attributes=True,
-    )
 
 
 class BookingCreateRequestSchema(BaseModel):
