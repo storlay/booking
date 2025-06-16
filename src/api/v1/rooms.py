@@ -17,6 +17,7 @@ from src.schemas.rooms import RoomCreateSchema
 from src.schemas.rooms import RoomPartiallyUpdateSchema
 from src.schemas.rooms import RoomSchema
 from src.schemas.rooms import RoomUpdateSchema
+from src.schemas.rooms import RoomWithRelsSchema
 
 
 router = APIRouter(
@@ -27,7 +28,7 @@ router = APIRouter(
 
 @router.get(
     "/{hotel_id}/rooms",
-    response_model=list[RoomSchema],
+    response_model=list[RoomWithRelsSchema],
     status_code=status.HTTP_200_OK,
 )
 @cache(expire=60)
@@ -35,7 +36,7 @@ async def get_all_hotel_rooms(
     transaction: DbTransactionDep,
     pagination: PaginationDep,
     params: RoomsParamsDep,
-) -> list[RoomSchema]:
+) -> list[RoomWithRelsSchema]:
     return await transaction.rooms.get_available_for_hotel(
         hotel_id=params.hotel_id,
         date_from=params.date_from,
@@ -47,7 +48,7 @@ async def get_all_hotel_rooms(
 
 @router.get(
     "/{hotel_id}/rooms/{room_id}",
-    response_model=RoomSchema,
+    response_model=RoomWithRelsSchema,
     status_code=status.HTTP_200_OK,
     responses={
         RoomNotFoundException.status_code: {
@@ -61,7 +62,7 @@ async def get_hotel_room(
     hotel_id: int,
     room_id: int,
     transaction: DbTransactionDep,
-) -> RoomSchema:
+) -> RoomWithRelsSchema:
     try:
         return await transaction.rooms.get_one_with_full_info(
             hotel_id=hotel_id,
