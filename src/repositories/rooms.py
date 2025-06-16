@@ -36,6 +36,7 @@ class RoomsRepository(BaseRepository):
             limit,
             offset,
             query_options,
+            with_rels=True,
             *filters,
         )
 
@@ -48,5 +49,6 @@ class RoomsRepository(BaseRepository):
         ]
         return await self.get_one(
             query_options,
+            with_rels=True,
             **filter_by,
         )

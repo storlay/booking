@@ -29,6 +29,7 @@ class BaseRepository:
         offset: int = None,
         query_options: Iterable[ExecutableOption] | None = None,
         *filter,
+        with_rels: bool = False,
         **filter_by,
     ) -> list[BaseModel | Any]:
         query = (
@@ -53,7 +54,7 @@ class BaseRepository:
         )
         # fmt: off
         return [
-            self.mapper.map_to_domain_entity(model)
+            self.mapper.map_to_domain_entity(model, with_rels=with_rels)
             for model in models
         ]
         # fmt: on
@@ -89,6 +90,7 @@ class BaseRepository:
     async def get_one(
         self,
         query_options: Iterable[ExecutableOption] | None = None,
+        with_rels: bool = False,
         **filter_by,
     ) -> BaseModel | Any:
         # fmt: off
@@ -101,7 +103,7 @@ class BaseRepository:
             query = query.options(*query_options)
         result = await self.session.execute(query)
         model = result.scalar_one()
-        return self.mapper.map_to_domain_entity(model)
+        return self.mapper.map_to_domain_entity(model, with_rels=with_rels)
 
     async def add(
         self,
