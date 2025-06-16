@@ -8,6 +8,8 @@ services:
       - ../.env
     ports:
       - "8000:8000"
+    volumes:
+      - booking-static:/app/src/static/
     depends_on:
       - db
       - redis
@@ -22,12 +24,47 @@ services:
     env_file:
       - ../.env
 
+  celery:
+    build:
+      context: ../
+    container_name: booking-celery
+    command: [ "./infra/commands/celery.sh", "celery" ]
+    env_file:
+      - ../.env
+    volumes:
+      - booking-static:/app/src/static/
+    depends_on:
+      - redis
+
+  beat:
+    build:
+      context: ../
+    container_name: booking-celery-beat
+    command: [ "./infra/commands/celery.sh", "beat" ]
+    env_file:
+      - ../.env
+    volumes:
+      - booking-static:/app/src/static/
+    depends_on:
+      - celery
+
+  flower:
+    build:
+      context: ../
+    container_name: flower
+    env_file:
+      - ../.env
+    command: [ "./infra/commands/celery.sh", "flower" ]
+    ports:
+      - "5555:5555"
+    depends_on:
+      - celery
+
   redis:
     image: redis:7.4.4
     container_name: booking-redis
-    ports:
-      - "6379:6379"
 
 
 volumes:
   postgres_data:
+  booking-static:
