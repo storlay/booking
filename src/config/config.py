@@ -2,6 +2,7 @@ import os
 from datetime import timedelta
 from decimal import Decimal
 from pathlib import Path
+from typing import Literal
 
 from pydantic import BaseModel
 from pydantic import PostgresDsn
@@ -80,9 +81,14 @@ class PaginationSettings(BaseModel):
     MAX_ENTITIES_PER_PAGE: int = 100
 
 
+class AppSettings(BaseModel):
+    MODE: Literal["TEST", "LOCAL", "DEV", "PROD"] = os.getenv("APP_MODE")
+
+
 class Settings(BaseSettings):
     db: DatabaseSettings = DatabaseSettings()
     jwt: JWTSettings = JWTSettings()
-    redis: RedisSettings = RedisSettings()
     models: ModelsSettings = ModelsSettings()
     pagination: PaginationSettings = PaginationSettings()
+    redis: RedisSettings = RedisSettings()
+    app: AppSettings = AppSettings()
