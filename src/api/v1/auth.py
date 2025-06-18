@@ -62,8 +62,8 @@ async def register_user(
 def login_user(
     user: AuthenticateUserDep,
 ) -> JWTInfoSchema:
-    access_token = JWTService.create_access_token_for_user(user)
-    refresh_token = JWTService.create_refresh_token_for_user(user)
+    access_token = JWTService.create_access_token_for_user(user.id)
+    refresh_token = JWTService.create_refresh_token_for_user(user.id)
     return JWTInfoSchema(
         access=access_token,
         refresh=refresh_token,
@@ -85,7 +85,7 @@ def login_user(
 def refresh_jwt(
     user: CurrentUserForRefreshDep,
 ) -> JWTInfoSchema:
-    access_token = JWTService.create_access_token_for_user(user)
+    access_token = JWTService.create_access_token_for_user(user.id)
     return JWTInfoSchema(access=access_token)
 
 
