@@ -8,6 +8,11 @@ services:
       - "8001:8000"
     volumes:
       - booking_static_test:/app/src/static/
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   db:
     container_name: booking-db-test
@@ -17,6 +22,11 @@ services:
       - postgres_data_test:/var/lib/postgresql/data
     env_file:
       - ../.env-test
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   celery:
     container_name: booking-celery-test
@@ -24,6 +34,11 @@ services:
       - ../.env-test
     volumes:
       - booking_static_test:/app/src/static/
+    depends_on:
+      redis:
+        condition: service_healthy
+      db:
+        condition: service_healthy
 
   beat:
     container_name: booking-celery-beat-test
@@ -31,12 +46,21 @@ services:
       - ../.env-test
     volumes:
       - booking_static_test:/app/src/static/
-
+    depends_on:
+      celery:
+        condition: service_started
+      redis:
+        condition: service_healthy
 
   redis:
     container_name: booking-redis-test
     ports:
       - "6380:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres_data_test:
