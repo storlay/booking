@@ -31,7 +31,7 @@ def downgrade() -> None:
     op.add_column(
         "bookings",
         sa.Column(
-            "price_per_day",
+            "price",
             sa.NUMERIC(precision=10, scale=2),
             autoincrement=False,
             nullable=False,

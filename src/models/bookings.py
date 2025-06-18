@@ -44,7 +44,7 @@ class Bookings(Base, IntPkModelMixin):
             name="check_booking_date",
         ),
         CheckConstraint(
-            "price_per_day >= 0",
+            "price >= 0",
             name="check_booking_price",
         ),
     )
