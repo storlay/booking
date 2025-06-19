@@ -45,6 +45,5 @@ select = [
 force-single-line = true
 lines-after-imports = 2
 
-
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
