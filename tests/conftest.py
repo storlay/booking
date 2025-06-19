@@ -1,6 +1,3 @@
-import json
-
-import aiofiles
 import pytest
 from httpx import ASGITransport
 from httpx import AsyncClient
@@ -12,7 +9,10 @@ from src.db.database import async_session_null_pool
 from src.main import app
 from src.schemas.hotels import HotelCreateOrUpdateSchema
 from src.schemas.rooms import RoomCreateSchema
+from src.schemas.users import UserAuthSchema
+from src.services.auth import AuthService
 from src.utils.transaction import TransactionManager
+from tests.utils import get_mock_data_from_file
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -36,7 +36,7 @@ async def ac():
         yield ac
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 async def db(prepare_db):
     async with TransactionManager(
         session_factory=async_session_null_pool,
@@ -45,33 +45,58 @@ async def db(prepare_db):
 
 
 @pytest.fixture(scope="session")
-async def populate_db(db):
-    async with aiofiles.open(
+async def populate_db():
+    hotels_to_add = await get_mock_data_from_file(
         "tests/mock_hotels.json",
-        "r",
-        encoding="utf-8",
-    ) as hotels_file:
-        content = await hotels_file.read()
-        hotels_data = json.loads(content)
-
-    async with aiofiles.open(
+        HotelCreateOrUpdateSchema,
+    )
+    rooms_to_add = await get_mock_data_from_file(
         "tests/mock_rooms.json",
-        "r",
-        encoding="utf-8",
-    ) as rooms_file:
-        content = await rooms_file.read()
-        rooms_data = json.loads(content)
+        RoomCreateSchema,
+    )
+    users_to_add = await get_mock_data_from_file(
+        "tests/mock_users.json",
+        UserAuthSchema,
+    )
+    for user in users_to_add:
+        user.password = AuthService.hash_password(user.password).decode("utf-8")
 
-    # fmt: off
-    hotels_to_add = [
-        HotelCreateOrUpdateSchema(**hotel)
-        for hotel in hotels_data
-    ]
-    rooms_to_add = [
-        RoomCreateSchema(**room)
-        for room in rooms_data
-    ]
-    # fmt: on
-    await db.hotels.add_bulk(hotels_to_add)
-    await db.rooms.add_bulk(rooms_to_add)
-    await db.commit()
+    async with TransactionManager(
+        session_factory=async_session_null_pool,
+    ) as transaction:
+        await transaction.users.add_bulk(users_to_add)
+        await transaction.hotels.add_bulk(hotels_to_add)
+        await transaction.rooms.add_bulk(rooms_to_add)
+        await transaction.commit()
+
+
+@pytest.fixture
+async def users_list(
+    populate_db,
+    db,
+):
+    return await db.users.get_all(
+        limit=10,
+        offset=0,
+    )
+
+
+@pytest.fixture
+async def rooms_list(
+    populate_db,
+    db,
+):
+    return await db.rooms.get_all(
+        limit=10,
+        offset=0,
+    )
+
+
+@pytest.fixture
+async def user(users_list):
+    return users_list[0]
+
+
+@pytest.fixture
+async def room(rooms_list):
+    return rooms_list[0]
