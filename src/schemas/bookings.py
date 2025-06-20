@@ -42,3 +42,8 @@ class BookingCreateRequestSchema(BaseModel):
         if self.date_from > self.date_to:
             raise ValueError("`date_from` cannot be earlier than `date_to`")
         return self
+
+
+class BookingUpdateSchema(BaseModel):
+    date_from: date
+    date_to: date
