@@ -43,10 +43,6 @@ def rooms_ids_for_booking(
             rooms_ids
             .filter_by(hotel_id=hotel_id)
         )
-    rooms_ids = (
-        rooms_ids
-        .subquery(name="rooms_ids_for_hotel")
-    )
     return (
         select(rooms_left.c.room_id)
         .select_from(rooms_left)
