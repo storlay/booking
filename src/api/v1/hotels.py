@@ -42,6 +42,7 @@ async def get_hotels(
     return await transaction.hotels.get_filtered(
         pagination.limit,
         pagination.offset,
+        None,
         *filters,
     )
 
