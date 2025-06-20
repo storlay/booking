@@ -37,7 +37,7 @@ class BaseRepository:
             .filter(*filter)
             .filter_by(**filter_by)
         )
-        if query_options:
+        if query_options is not None:
             query = query.options(*query_options)
         if limit:
             query = (
@@ -49,7 +49,7 @@ class BaseRepository:
         result = await self.session.execute(query)
         models = (
             result.scalars().unique().all()
-            if query_options
+            if query_options is not None
             else result.scalars().all()
         )
         # fmt: off
@@ -99,7 +99,7 @@ class BaseRepository:
             .filter_by(**filter_by)
         )
         # fmt: on
-        if query_options:
+        if query_options is not None:
             query = query.options(*query_options)
         result = await self.session.execute(query)
         model = result.scalar_one()
