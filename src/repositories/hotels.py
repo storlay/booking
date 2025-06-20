@@ -1,5 +1,6 @@
 from datetime import date
 
+from sqlalchemy import ColumnElement
 from sqlalchemy import select
 
 from src.models.hotels import Hotels
@@ -19,7 +20,7 @@ class HotelsRepository(BaseRepository):
         date_to: date,
         limit: int,
         offset: int,
-        filters: list[str | None],
+        filters: list[ColumnElement | None]
     ):
         available_rooms_ids = rooms_ids_for_booking(
             date_from,
@@ -30,9 +31,10 @@ class HotelsRepository(BaseRepository):
             .select_from(Rooms)
             .filter(Rooms.id.in_(available_rooms_ids))
         )
-        filters = filters + [Hotels.id.in_(hotels_ids)]
+        filters += [Hotels.id.in_(hotels_ids)]
         return self.get_filtered(
             limit,
             offset,
+            None,
             *filters,
         )
