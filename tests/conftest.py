@@ -8,6 +8,7 @@ from src.db.database import Base
 from src.db.database import async_engine_null_pull
 from src.db.database import async_session_null_pool
 from src.main import app
+from src.schemas.facilities import FacilityCreateSchema
 from src.schemas.hotels import HotelCreateOrUpdateSchema
 from src.schemas.rooms import RoomCreateSchema
 from src.schemas.users import UserAuthSchema
@@ -67,6 +68,10 @@ async def populate_db():
         "tests/mock_users.json",
         UserAuthSchema,
     )
+    facilities_to_add = await get_mock_data_from_file(
+        "tests/mock_facilities.json",
+        FacilityCreateSchema,
+    )
     for user in users_to_add:
         user.password = AuthService.hash_password(user.password).decode("utf-8")
 
@@ -76,6 +81,7 @@ async def populate_db():
         await transaction.users.add_bulk(users_to_add)
         await transaction.hotels.add_bulk(hotels_to_add)
         await transaction.rooms.add_bulk(rooms_to_add)
+        await transaction.facilities.add_bulk(facilities_to_add)
         await transaction.commit()
 
 
