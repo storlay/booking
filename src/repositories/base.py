@@ -137,7 +137,7 @@ class BaseRepository:
         data: BaseModel,
         partially: bool = False,
         **filter_by,
-    ) -> None:
+    ) -> int:
         # fmt: off
         stmt = (
             update(self.model)
@@ -147,7 +147,7 @@ class BaseRepository:
         )
         # fmt: on
         result = await self.session.execute(stmt)
-        result.one()
+        return result.scalar_one()
 
     async def delete_one(
         self,
@@ -161,4 +161,4 @@ class BaseRepository:
         )
         # fmt: on
         result = await self.session.execute(stmt)
-        result.one()
+        return result.scalar_one()
