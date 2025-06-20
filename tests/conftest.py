@@ -2,6 +2,7 @@ import pytest
 from httpx import ASGITransport
 from httpx import AsyncClient
 
+from src.api.dependecies.db import get_db_transaction
 from src.config import settings
 from src.db.database import Base
 from src.db.database import async_engine_null_pull
@@ -13,6 +14,16 @@ from src.schemas.users import UserAuthSchema
 from src.services.auth import AuthService
 from src.utils.transaction import TransactionManager
 from tests.utils import get_mock_data_from_file
+
+
+async def get_test_db():
+    async with TransactionManager(
+        session_factory=async_session_null_pool,
+    ) as transaction:
+        yield transaction
+
+
+app.dependency_overrides[get_db_transaction] = get_test_db
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -38,10 +49,8 @@ async def ac():
 
 @pytest.fixture
 async def db(prepare_db):
-    async with TransactionManager(
-        session_factory=async_session_null_pool,
-    ) as transaction:
-        yield transaction
+    async for db in get_test_db():
+        yield db
 
 
 @pytest.fixture(scope="session")
