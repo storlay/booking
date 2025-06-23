@@ -49,7 +49,7 @@ async def prepare_db(check_test_mode):
 async def auth_user_data():
     return {
         "email": "kot@pes.com",
-        "password": "1234",
+        "password": "12345678",
     }
 
 
@@ -89,6 +89,11 @@ async def user_ac(
             json=auth_user_data,
         )
         assert response.status_code == status.HTTP_200_OK
+        ac.headers.update(
+            {
+                "Authorization": f"Bearer {response.json()['access']}",
+            }
+        )
         yield ac
 
 
