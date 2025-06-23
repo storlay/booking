@@ -31,10 +31,12 @@ class BookingsRepository(BaseRepository):
     async def add_booking(
         self,
         data: BookingCreateSchema,
+        hotel_id: int,
     ):
         rooms_ids_query = rooms_ids_for_booking(
             data.date_from,
             data.date_to,
+            hotel_id,
         )
         result = await self.session.execute(rooms_ids_query)
         available_rooms_ids = result.scalars().all()

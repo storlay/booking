@@ -91,7 +91,10 @@ async def create_booking(
         **data.model_dump(),
     )
     try:
-        result = await transaction.bookings.add_booking(data)
+        result = await transaction.bookings.add_booking(
+            data,
+            room.hotel_id,
+        )
     except RoomUnavailableRepoException:
         raise RoomUnavailableHTTPException
     await transaction.commit()
