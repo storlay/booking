@@ -8,7 +8,8 @@ from src.api.dependecies import DbTransactionDep
 from src.api.dependecies import PaginationDep
 from src.exceptions.api.auth import InvalidAuthTokenHTTPException
 from src.exceptions.api.bookings import InvalidRoomIdForBookingHTTPException
-from src.exceptions.repository.bookings import RoomUnavailableException
+from src.exceptions.api.bookings import RoomUnavailableHTTPException
+from src.exceptions.repository.bookings import RoomUnavailableRepoException
 from src.schemas.base import BaseHTTPExceptionSchema
 from src.schemas.bookings import BookingCreateRequestSchema
 from src.schemas.bookings import BookingCreateSchema
@@ -68,6 +69,10 @@ async def get_me_bookings(
             "model": BaseHTTPExceptionSchema,
             "description": InvalidAuthTokenHTTPException.detail,
         },
+        RoomUnavailableHTTPException.status_code: {
+            "model": BaseHTTPExceptionSchema,
+            "description": RoomUnavailableHTTPException.detail,
+        },
     },
 )
 async def create_booking(
@@ -87,7 +92,7 @@ async def create_booking(
     )
     try:
         result = await transaction.bookings.add_booking(data)
-    except RoomUnavailableException:
-        raise
+    except RoomUnavailableRepoException:
+        raise RoomUnavailableHTTPException
     await transaction.commit()
     return result
