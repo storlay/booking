@@ -1,6 +1,7 @@
 from unittest import mock
 
 import pytest
+from fastapi import status
 from httpx import ASGITransport
 from httpx import AsyncClient
 
@@ -45,11 +46,49 @@ async def prepare_db(check_test_mode):
 
 
 @pytest.fixture(scope="session")
+async def auth_user_data():
+    return {
+        "email": "kot@pes.com",
+        "password": "1234",
+    }
+
+
+@pytest.fixture(scope="session", autouse=True)
+async def register_user(
+    prepare_db,
+    ac,
+    auth_user_data,
+):
+    await ac.post(
+        "/v1/auth/register",
+        json=auth_user_data,
+    )
+
+
+@pytest.fixture(scope="session")
 async def ac():
     async with AsyncClient(
         transport=ASGITransport(app=app),
         base_url="http://test",
     ) as ac:
+        yield ac
+
+
+@pytest.fixture(scope="session")
+async def user_ac(
+    register_user,
+    auth_user_data,
+    ac,
+):
+    async with AsyncClient(
+        transport=ASGITransport(app=app),
+        base_url="http://test",
+    ) as ac:
+        response = await ac.post(
+            "/v1/auth/login",
+            json=auth_user_data,
+        )
+        assert response.status_code == status.HTTP_200_OK
         yield ac
 
 
