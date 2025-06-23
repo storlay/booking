@@ -6,9 +6,9 @@ from src.api.dependecies import AuthenticateUserDep
 from src.api.dependecies import CurrentUserDep
 from src.api.dependecies import CurrentUserForRefreshDep
 from src.api.dependecies import DbTransactionDep
-from src.exceptions.api.auth import IncorrectAuthCredsException
-from src.exceptions.api.auth import InvalidAuthTokenException
-from src.exceptions.api.auth import UserAlreadyExistsException
+from src.exceptions.api.auth import IncorrectAuthCredsHTTPException
+from src.exceptions.api.auth import InvalidAuthTokenHTTPException
+from src.exceptions.api.auth import UserAlreadyExistsHTTPException
 from src.schemas.auth import JWTInfoSchema
 from src.schemas.base import BaseHTTPExceptionSchema
 from src.schemas.base import BaseSuccessResponseSchema
@@ -29,9 +29,9 @@ router = APIRouter(
     response_model=BaseSuccessResponseSchema,
     status_code=status.HTTP_201_CREATED,
     responses={
-        UserAlreadyExistsException.status_code: {
+        UserAlreadyExistsHTTPException.status_code: {
             "model": BaseHTTPExceptionSchema,
-            "description": UserAlreadyExistsException.detail,
+            "description": UserAlreadyExistsHTTPException.detail,
         },
     },
 )
@@ -44,7 +44,7 @@ async def register_user(
         await transaction.users.add(data)
         await transaction.commit()
     except IntegrityError:
-        raise UserAlreadyExistsException
+        raise UserAlreadyExistsHTTPException
     return BaseSuccessResponseSchema()
 
 
@@ -53,9 +53,9 @@ async def register_user(
     response_model=JWTInfoSchema,
     status_code=status.HTTP_200_OK,
     responses={
-        IncorrectAuthCredsException.status_code: {
+        IncorrectAuthCredsHTTPException.status_code: {
             "model": BaseHTTPExceptionSchema,
-            "description": IncorrectAuthCredsException.detail,
+            "description": IncorrectAuthCredsHTTPException.detail,
         },
     },
 )
@@ -76,9 +76,9 @@ def login_user(
     response_model_exclude_none=True,
     status_code=status.HTTP_200_OK,
     responses={
-        InvalidAuthTokenException.status_code: {
+        InvalidAuthTokenHTTPException.status_code: {
             "model": BaseHTTPExceptionSchema,
-            "description": InvalidAuthTokenException.detail,
+            "description": InvalidAuthTokenHTTPException.detail,
         },
     },
 )

@@ -9,8 +9,8 @@ from fastapi.security import HTTPBearer
 from src.api.dependecies.db import DbTransactionDep
 from src.api.dependecies.utils import validate_jwt_type
 from src.config import settings
-from src.exceptions.api.auth import IncorrectAuthCredsException
-from src.exceptions.api.auth import InvalidAuthTokenException
+from src.exceptions.api.auth import IncorrectAuthCredsHTTPException
+from src.exceptions.api.auth import InvalidAuthTokenHTTPException
 from src.schemas.users import UserAuthSchema
 from src.schemas.users import UserSchema
 from src.services.auth import AuthService
@@ -25,9 +25,9 @@ async def authenticate_user(
         email=data.email,
     )
     if not user:
-        raise IncorrectAuthCredsException
+        raise IncorrectAuthCredsHTTPException
     if not AuthService.check_password(data.password, user.password):
-        raise IncorrectAuthCredsException
+        raise IncorrectAuthCredsHTTPException
     return user
 
 
@@ -37,7 +37,7 @@ def get_token_payload(
     try:
         return JWTService.decode(token_data.credentials)
     except jwt.exceptions.InvalidTokenError:
-        raise InvalidAuthTokenException
+        raise InvalidAuthTokenHTTPException
 
 
 def get_current_user_by_token_type(token_type: str) -> Callable:
@@ -48,12 +48,12 @@ def get_current_user_by_token_type(token_type: str) -> Callable:
         validate_jwt_type(payload, token_type)
         user_id = payload.get("sub")
         if not user_id:
-            raise InvalidAuthTokenException
+            raise InvalidAuthTokenHTTPException
 
         user_id = int(user_id)
         user = await transaction.users.get_one_or_none(id=user_id)
         if not user:
-            raise InvalidAuthTokenException
+            raise InvalidAuthTokenHTTPException
         return user
 
     return get_user_from_payload

@@ -1,5 +1,5 @@
 from src.config import settings
-from src.exceptions.api.auth import InvalidAuthTokenException
+from src.exceptions.api.auth import InvalidAuthTokenHTTPException
 
 
 def validate_jwt_type(
@@ -8,4 +8,4 @@ def validate_jwt_type(
 ) -> None:
     token_type = payload.get(settings.jwt.TOKEN_TYPE_FIELD)
     if token_type != valid_token_type:
-        raise InvalidAuthTokenException
+        raise InvalidAuthTokenHTTPException

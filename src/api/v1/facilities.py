@@ -5,7 +5,7 @@ from sqlalchemy.exc import IntegrityError
 
 from src.api.dependecies import DbTransactionDep
 from src.api.dependecies import PaginationDep
-from src.exceptions.api.facilities import FacilityAlreadyExistsException
+from src.exceptions.api.facilities import FacilityAlreadyExistsHTTPException
 from src.schemas.base import BaseHTTPExceptionSchema
 from src.schemas.facilities import FacilityCreateSchema
 from src.schemas.facilities import FacilitySchema
@@ -38,9 +38,9 @@ async def get_all_facilities(
     status_code=status.HTTP_201_CREATED,
     response_model=FacilitySchema,
     responses={
-        FacilityAlreadyExistsException.status_code: {
+        FacilityAlreadyExistsHTTPException.status_code: {
             "model": BaseHTTPExceptionSchema,
-            "description": FacilityAlreadyExistsException.detail,
+            "description": FacilityAlreadyExistsHTTPException.detail,
         },
     },
 )
@@ -53,4 +53,4 @@ async def create_facility(
         await transaction.commit()
         return result
     except IntegrityError:
-        raise FacilityAlreadyExistsException
+        raise FacilityAlreadyExistsHTTPException

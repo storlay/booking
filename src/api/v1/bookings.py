@@ -6,8 +6,9 @@ from sqlalchemy.exc import NoResultFound
 from src.api.dependecies import CurrentUserDep
 from src.api.dependecies import DbTransactionDep
 from src.api.dependecies import PaginationDep
-from src.exceptions.api.auth import InvalidAuthTokenException
-from src.exceptions.api.bookings import InvalidRoomIdForBookingException
+from src.exceptions.api.auth import InvalidAuthTokenHTTPException
+from src.exceptions.api.bookings import InvalidRoomIdForBookingHTTPException
+from src.exceptions.repository.bookings import RoomUnavailableException
 from src.schemas.base import BaseHTTPExceptionSchema
 from src.schemas.bookings import BookingCreateRequestSchema
 from src.schemas.bookings import BookingCreateSchema
@@ -59,13 +60,13 @@ async def get_me_bookings(
     response_model=BookingSchema,
     status_code=status.HTTP_201_CREATED,
     responses={
-        InvalidRoomIdForBookingException.status_code: {
+        InvalidRoomIdForBookingHTTPException.status_code: {
             "model": BaseHTTPExceptionSchema,
-            "description": InvalidRoomIdForBookingException.detail,
+            "description": InvalidRoomIdForBookingHTTPException.detail,
         },
-        InvalidAuthTokenException.status_code: {
+        InvalidAuthTokenHTTPException.status_code: {
             "model": BaseHTTPExceptionSchema,
-            "description": InvalidAuthTokenException.detail,
+            "description": InvalidAuthTokenHTTPException.detail,
         },
     },
 )
@@ -77,13 +78,16 @@ async def create_booking(
     try:
         room = await transaction.rooms.get_one(id=data.room_id)
     except NoResultFound:
-        raise InvalidRoomIdForBookingException
+        raise InvalidRoomIdForBookingHTTPException
 
     data = BookingCreateSchema(
         user_id=user.id,
         price=room.price,
         **data.model_dump(),
     )
-    result = await transaction.bookings.add(data)
+    try:
+        result = await transaction.bookings.add_booking(data)
+    except RoomUnavailableException:
+        raise
     await transaction.commit()
     return result

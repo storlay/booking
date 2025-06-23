@@ -7,8 +7,8 @@ from sqlalchemy.exc import NoResultFound
 from src.api.dependecies import DbTransactionDep
 from src.api.dependecies import PaginationDep
 from src.api.dependecies import RoomsParamsDep
-from src.exceptions.api.hotels import HotelNotFoundException
-from src.exceptions.api.rooms import RoomNotFoundException
+from src.exceptions.api.hotels import HotelNotFoundHTTPException
+from src.exceptions.api.rooms import RoomNotFoundHTTPException
 from src.schemas.base import BaseHTTPExceptionSchema
 from src.schemas.base import BaseSuccessResponseSchema
 from src.schemas.facilities import RoomFacilityAddSchema
@@ -51,9 +51,9 @@ async def get_all_hotel_rooms(
     response_model=RoomWithRelsSchema,
     status_code=status.HTTP_200_OK,
     responses={
-        RoomNotFoundException.status_code: {
+        RoomNotFoundHTTPException.status_code: {
             "model": BaseHTTPExceptionSchema,
-            "description": RoomNotFoundException.detail,
+            "description": RoomNotFoundHTTPException.detail,
         },
     },
 )
@@ -69,7 +69,7 @@ async def get_hotel_room(
             id=room_id,
         )
     except NoResultFound:
-        raise RoomNotFoundException
+        raise RoomNotFoundHTTPException
 
 
 @router.post(
@@ -77,9 +77,9 @@ async def get_hotel_room(
     response_model=RoomSchema,
     status_code=status.HTTP_201_CREATED,
     responses={
-        HotelNotFoundException.status_code: {
+        HotelNotFoundHTTPException.status_code: {
             "model": BaseHTTPExceptionSchema,
-            "description": HotelNotFoundException.detail,
+            "description": HotelNotFoundHTTPException.detail,
         },
     },
 )
@@ -107,7 +107,7 @@ async def add_room_to_hotel(
             )
         await transaction.commit()
     except IntegrityError:
-        raise HotelNotFoundException
+        raise HotelNotFoundHTTPException
     return room
 
 
@@ -116,9 +116,9 @@ async def add_room_to_hotel(
     response_model=BaseSuccessResponseSchema,
     status_code=status.HTTP_200_OK,
     responses={
-        RoomNotFoundException.status_code: {
+        RoomNotFoundHTTPException.status_code: {
             "model": BaseHTTPExceptionSchema,
-            "description": RoomNotFoundException.detail,
+            "description": RoomNotFoundHTTPException.detail,
         },
     },
 )
@@ -146,7 +146,7 @@ async def update_hotel_room(
 
         await transaction.commit()
     except NoResultFound:
-        raise RoomNotFoundException
+        raise RoomNotFoundHTTPException
     return BaseSuccessResponseSchema()
 
 
@@ -155,9 +155,9 @@ async def update_hotel_room(
     response_model=BaseSuccessResponseSchema,
     status_code=status.HTTP_200_OK,
     responses={
-        RoomNotFoundException.status_code: {
+        RoomNotFoundHTTPException.status_code: {
             "model": BaseHTTPExceptionSchema,
-            "description": RoomNotFoundException.detail,
+            "description": RoomNotFoundHTTPException.detail,
         },
     },
 )
@@ -181,7 +181,7 @@ async def update_hotel_room_partial(
             )
         await transaction.commit()
     except NoResultFound:
-        raise RoomNotFoundException
+        raise RoomNotFoundHTTPException
     return BaseSuccessResponseSchema()
 
 
@@ -190,9 +190,9 @@ async def update_hotel_room_partial(
     response_model=BaseSuccessResponseSchema,
     status_code=status.HTTP_200_OK,
     responses={
-        RoomNotFoundException.status_code: {
+        RoomNotFoundHTTPException.status_code: {
             "model": BaseHTTPExceptionSchema,
-            "description": RoomNotFoundException.detail,
+            "description": RoomNotFoundHTTPException.detail,
         },
     },
 )
@@ -208,5 +208,5 @@ async def delete_hotel_room(
         )
         await transaction.commit()
     except NoResultFound:
-        raise RoomNotFoundException
+        raise RoomNotFoundHTTPException
     return BaseSuccessResponseSchema()

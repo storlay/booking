@@ -12,7 +12,7 @@ from src.api.dependecies import DbTransactionDep
 from src.api.dependecies import HotelsParamsDep
 from src.api.dependecies import PaginationDep
 from src.api.v1.utils import get_hotels_filters_from_params
-from src.exceptions.api.hotels import HotelNotFoundException
+from src.exceptions.api.hotels import HotelNotFoundHTTPException
 from src.schemas.base import BaseHTTPExceptionSchema
 from src.schemas.base import BaseSuccessResponseSchema
 from src.schemas.hotels import HotelCreateOrUpdateSchema
@@ -75,9 +75,9 @@ async def get_available_hotels(
     response_model=HotelSchema,
     status_code=status.HTTP_200_OK,
     responses={
-        HotelNotFoundException.status_code: {
+        HotelNotFoundHTTPException.status_code: {
             "model": BaseHTTPExceptionSchema,
-            "description": HotelNotFoundException.detail,
+            "description": HotelNotFoundHTTPException.detail,
         },
     },
 )
@@ -91,7 +91,7 @@ async def get_hotel(
             id=hotel_id,
         )
     except NoResultFound:
-        raise HotelNotFoundException
+        raise HotelNotFoundHTTPException
 
 
 @router.post(
@@ -123,9 +123,9 @@ async def add_hotel(
     response_model=BaseSuccessResponseSchema,
     status_code=HTTP_200_OK,
     responses={
-        HotelNotFoundException.status_code: {
+        HotelNotFoundHTTPException.status_code: {
             "model": BaseHTTPExceptionSchema,
-            "description": HotelNotFoundException.detail,
+            "description": HotelNotFoundHTTPException.detail,
         },
     },
 )
@@ -151,7 +151,7 @@ async def update_hotel(
         )
         await transaction.commit()
     except NoResultFound:
-        raise HotelNotFoundException
+        raise HotelNotFoundHTTPException
     return BaseSuccessResponseSchema()
 
 
@@ -160,9 +160,9 @@ async def update_hotel(
     response_model=BaseSuccessResponseSchema,
     status_code=status.HTTP_200_OK,
     responses={
-        HotelNotFoundException.status_code: {
+        HotelNotFoundHTTPException.status_code: {
             "model": BaseHTTPExceptionSchema,
-            "description": HotelNotFoundException.detail,
+            "description": HotelNotFoundHTTPException.detail,
         },
     },
 )
@@ -188,7 +188,7 @@ async def update_hotel_partial(
         )
         await transaction.commit()
     except NoResultFound:
-        raise HotelNotFoundException
+        raise HotelNotFoundHTTPException
     return BaseSuccessResponseSchema()
 
 
@@ -197,9 +197,9 @@ async def update_hotel_partial(
     response_model=BaseSuccessResponseSchema,
     status_code=status.HTTP_200_OK,
     responses={
-        HotelNotFoundException.status_code: {
+        HotelNotFoundHTTPException.status_code: {
             "model": BaseHTTPExceptionSchema,
-            "description": HotelNotFoundException.detail,
+            "description": HotelNotFoundHTTPException.detail,
         },
     },
 )
@@ -213,5 +213,5 @@ async def delete_hotel(
         )
         await transaction.commit()
     except NoResultFound:
-        raise HotelNotFoundException
+        raise HotelNotFoundHTTPException
     return BaseSuccessResponseSchema()
