@@ -1,0 +1,2 @@
+class RoomUnavailableRepoException(Exception):
+    pass
