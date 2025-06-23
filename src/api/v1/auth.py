@@ -6,9 +6,9 @@ from src.api.dependecies import AuthenticateUserDep
 from src.api.dependecies import CurrentUserDep
 from src.api.dependecies import CurrentUserForRefreshDep
 from src.api.dependecies import DbTransactionDep
-from src.exceptions.auth import IncorrectAuthCredsException
-from src.exceptions.auth import InvalidAuthTokenException
-from src.exceptions.auth import UserAlreadyExistsException
+from src.exceptions.api.auth import IncorrectAuthCredsException
+from src.exceptions.api.auth import InvalidAuthTokenException
+from src.exceptions.api.auth import UserAlreadyExistsException
 from src.schemas.auth import JWTInfoSchema
 from src.schemas.base import BaseHTTPExceptionSchema
 from src.schemas.base import BaseSuccessResponseSchema

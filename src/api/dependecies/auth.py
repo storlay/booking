@@ -9,8 +9,8 @@ from fastapi.security import HTTPBearer
 from src.api.dependecies.db import DbTransactionDep
 from src.api.dependecies.utils import validate_jwt_type
 from src.config import settings
-from src.exceptions.auth import IncorrectAuthCredsException
-from src.exceptions.auth import InvalidAuthTokenException
+from src.exceptions.api.auth import IncorrectAuthCredsException
+from src.exceptions.api.auth import InvalidAuthTokenException
 from src.schemas.users import UserAuthSchema
 from src.schemas.users import UserSchema
 from src.services.auth import AuthService

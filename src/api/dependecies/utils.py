@@ -1,5 +1,5 @@
 from src.config import settings
-from src.exceptions.auth import InvalidAuthTokenException
+from src.exceptions.api.auth import InvalidAuthTokenException
 
 
 def validate_jwt_type(

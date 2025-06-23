@@ -1,6 +1,6 @@
 from fastapi import status
 
-from src.exceptions.base import BaseHTTPException
+from src.exceptions.api.base import BaseHTTPException
 
 
 class InvalidRoomIdForBookingException(BaseHTTPException):

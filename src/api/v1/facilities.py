@@ -5,7 +5,7 @@ from sqlalchemy.exc import IntegrityError
 
 from src.api.dependecies import DbTransactionDep
 from src.api.dependecies import PaginationDep
-from src.exceptions.facilities import FacilityAlreadyExistsException
+from src.exceptions.api.facilities import FacilityAlreadyExistsException
 from src.schemas.base import BaseHTTPExceptionSchema
 from src.schemas.facilities import FacilityCreateSchema
 from src.schemas.facilities import FacilitySchema

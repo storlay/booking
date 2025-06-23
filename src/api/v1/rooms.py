@@ -7,8 +7,8 @@ from sqlalchemy.exc import NoResultFound
 from src.api.dependecies import DbTransactionDep
 from src.api.dependecies import PaginationDep
 from src.api.dependecies import RoomsParamsDep
-from src.exceptions.hotels import HotelNotFoundException
-from src.exceptions.rooms import RoomNotFoundException
+from src.exceptions.api.hotels import HotelNotFoundException
+from src.exceptions.api.rooms import RoomNotFoundException
 from src.schemas.base import BaseHTTPExceptionSchema
 from src.schemas.base import BaseSuccessResponseSchema
 from src.schemas.facilities import RoomFacilityAddSchema

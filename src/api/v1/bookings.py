@@ -6,8 +6,8 @@ from sqlalchemy.exc import NoResultFound
 from src.api.dependecies import CurrentUserDep
 from src.api.dependecies import DbTransactionDep
 from src.api.dependecies import PaginationDep
-from src.exceptions.auth import InvalidAuthTokenException
-from src.exceptions.bookings import InvalidRoomIdForBookingException
+from src.exceptions.api.auth import InvalidAuthTokenException
+from src.exceptions.api.bookings import InvalidRoomIdForBookingException
 from src.schemas.base import BaseHTTPExceptionSchema
 from src.schemas.bookings import BookingCreateRequestSchema
 from src.schemas.bookings import BookingCreateSchema

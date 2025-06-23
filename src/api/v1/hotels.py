@@ -12,7 +12,7 @@ from src.api.dependecies import DbTransactionDep
 from src.api.dependecies import HotelsParamsDep
 from src.api.dependecies import PaginationDep
 from src.api.v1.utils import get_hotels_filters_from_params
-from src.exceptions.hotels import HotelNotFoundException
+from src.exceptions.api.hotels import HotelNotFoundException
 from src.schemas.base import BaseHTTPExceptionSchema
 from src.schemas.base import BaseSuccessResponseSchema
 from src.schemas.hotels import HotelCreateOrUpdateSchema
