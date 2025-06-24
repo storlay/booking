@@ -47,7 +47,6 @@ async def test_create_booking(
         "/v1/bookings",
         json=data_to_add,
     )
-    print(response.json())
     assert response.status_code == status_code
     if status_code == status.HTTP_201_CREATED:
         response_data = response.json()
@@ -55,3 +54,45 @@ async def test_create_booking(
         assert response_data["date_from"] == date_from
         assert response_data["date_to"] == date_to
         assert response_data["room_id"] == room_id
+
+
+@pytest.mark.parametrize(
+    "room_id, date_from, date_to, bookings_count",
+    [
+        (
+            ROOM_ID,
+            date.today().isoformat(),
+            (date.today() + timedelta(weeks=1)).isoformat(),
+            i,
+        )
+        for i in range(1, ROOM_QUANTITY + 1)
+    ],
+)
+async def test_create_and_get_me_bookings(
+    room_id,
+    date_from,
+    date_to,
+    bookings_count,
+    clear_bookings,
+    user_ac,
+):
+    create_booking_data = {
+        "date_from": date_from,
+        "date_to": date_to,
+        "room_id": room_id,
+    }
+    create_booking_response = await user_ac.post(
+        "/v1/bookings",
+        json=create_booking_data,
+    )
+    assert create_booking_response.status_code == status.HTTP_201_CREATED
+
+    get_me_bookings_response = await user_ac.get(
+        "/v1/bookings/me",
+        params={
+            "page": 1,
+            "per_page": ROOM_QUANTITY,
+        },
+    )
+    assert get_me_bookings_response.status_code == status.HTTP_200_OK
+    assert len(get_me_bookings_response.json()) == bookings_count
