@@ -32,19 +32,11 @@ class BaseRepository:
         with_rels: bool = False,
         **filter_by,
     ) -> list[BaseModel | Any]:
-        query = (
-            select(self.model)
-            .filter(*filter)
-            .filter_by(**filter_by)
-        )
+        query = select(self.model).filter(*filter).filter_by(**filter_by)
         if query_options is not None:
             query = query.options(*query_options)
         if limit:
-            query = (
-                query
-                .limit(limit)
-                .offset(offset)
-            )
+            query = query.limit(limit).offset(offset)
 
         result = await self.session.execute(query)
         models = (
@@ -152,7 +144,7 @@ class BaseRepository:
     async def delete_one(
         self,
         **filter_by,
-    ) -> None:
+    ) -> int:
         # fmt: off
         stmt = (
             delete(self.model)
@@ -162,3 +154,15 @@ class BaseRepository:
         # fmt: on
         result = await self.session.execute(stmt)
         return result.scalar_one()
+
+    async def delete_bulk(
+        self,
+        **filter_by,
+    ) -> None:
+        # fmt: off
+        stmt = (
+            delete(self.model)
+            .filter_by(**filter_by)
+        )
+        # fmt: on
+        await self.session.execute(stmt)
