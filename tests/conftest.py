@@ -157,10 +157,14 @@ async def rooms_list(
 
 
 @pytest.fixture
-async def user(users_list):
+def user(users_list):
     return users_list[0]
 
 
 @pytest.fixture
-async def room(rooms_list):
+def room(rooms_list):
     return rooms_list[0]
+
+
+def room_id_with_quantity() -> tuple[int, int]:
+    return 1, 5
