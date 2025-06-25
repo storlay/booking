@@ -20,7 +20,7 @@ class HotelsRepository(BaseRepository):
         date_to: date,
         limit: int,
         offset: int,
-        filters: list[ColumnElement | None]
+        filters: list[ColumnElement | None],
     ):
         available_rooms_ids = rooms_ids_for_booking(
             date_from,

@@ -8,6 +8,7 @@ from httpx import AsyncClient
 
 mock.patch("fastapi_cache.decorator.cache", lambda *args, **kwargs: lambda f: f).start()
 
+
 from src.api.dependecies.db import get_db_transaction
 from src.config import settings
 from src.db.database import Base

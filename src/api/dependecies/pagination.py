@@ -14,7 +14,7 @@ def get_pagination_params(
 ):
     return PaginationSchema(
         limit=params.per_page,
-        offset=params.per_page * (params.page - 1)
+        offset=params.per_page * (params.page - 1),
     )
 
 

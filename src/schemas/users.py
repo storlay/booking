@@ -34,7 +34,6 @@ class UserSchema(BaseModel):
     last_name: str | None
 
 
-
 class UserWithPasswordSchema(UserSchema):
     password: bytes
 

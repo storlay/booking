@@ -9,4 +9,3 @@ def test_encode_and_decode_token():
     decoded_payload = JWTService.decode(token)
     assert decoded_payload.get("sub")
     assert int(decoded_payload["sub"]) == user_id
-

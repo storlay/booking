@@ -26,7 +26,9 @@ class BaseDataMapper:
         model: Base,
         with_rels: bool = False,
     ) -> type[SchemaType]:
-        schema = cls.schema_with_rels if with_rels and cls.schema_with_rels else cls.schema
+        schema = (
+            cls.schema_with_rels if with_rels and cls.schema_with_rels else cls.schema
+        )
         return schema.model_validate(
             model,
             from_attributes=True,
