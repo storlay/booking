@@ -89,9 +89,16 @@ def refresh_jwt(
     return JWTInfoSchema(access=access_token)
 
 
-@router.post(
+@router.get(
     "/me",
     response_model=UserSchema,
+    status_code=status.HTTP_200_OK,
+    responses={
+        InvalidAuthTokenHTTPException.status_code: {
+            "model": BaseHTTPExceptionSchema,
+            "description": InvalidAuthTokenHTTPException.detail,
+        },
+    },
 )
 async def get_me(
     user: CurrentUserDep,
