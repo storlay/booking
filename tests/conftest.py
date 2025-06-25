@@ -166,7 +166,7 @@ def room(rooms_list):
     return rooms_list[0]
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 async def clear_bookings():
     async for transaction in get_test_db():
         await transaction.bookings.delete_bulk()
