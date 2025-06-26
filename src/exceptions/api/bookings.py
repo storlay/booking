@@ -3,11 +3,11 @@ from fastapi import status
 from src.exceptions.api.base import BaseHTTPException
 
 
-class InvalidRoomIdForBookingHTTPException(BaseHTTPException):
-    status_code = status.HTTP_400_BAD_REQUEST
-    detail = "Invalid room id"
+class RoomNotFoundHTTPException(BaseHTTPException):
+    status_code = status.HTTP_404_NOT_FOUND
+    detail = "Room not found"
 
 
-class RoomUnavailableHTTPException(BaseHTTPException):
-    status_code = status.HTTP_400_BAD_REQUEST
+class AllRoomsAlreadyBookedHTTPException(BaseHTTPException):
+    status_code = status.HTTP_409_CONFLICT
     detail = "All available rooms already booked"

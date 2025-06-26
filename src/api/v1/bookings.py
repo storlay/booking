@@ -7,8 +7,8 @@ from src.api.dependecies import CurrentUserDep
 from src.api.dependecies import DbTransactionDep
 from src.api.dependecies import PaginationDep
 from src.exceptions.api.auth import InvalidAuthTokenHTTPException
-from src.exceptions.api.bookings import InvalidRoomIdForBookingHTTPException
-from src.exceptions.api.bookings import RoomUnavailableHTTPException
+from src.exceptions.api.bookings import AllRoomsAlreadyBookedHTTPException
+from src.exceptions.api.bookings import RoomNotFoundHTTPException
 from src.exceptions.repository.bookings import RoomUnavailableRepoException
 from src.schemas.base import BaseHTTPExceptionSchema
 from src.schemas.bookings import BookingCreateRequestSchema
@@ -61,17 +61,17 @@ async def get_me_bookings(
     response_model=BookingSchema,
     status_code=status.HTTP_201_CREATED,
     responses={
-        InvalidRoomIdForBookingHTTPException.status_code: {
+        RoomNotFoundHTTPException.status_code: {
             "model": BaseHTTPExceptionSchema,
-            "description": InvalidRoomIdForBookingHTTPException.detail,
+            "description": RoomNotFoundHTTPException.detail,
         },
         InvalidAuthTokenHTTPException.status_code: {
             "model": BaseHTTPExceptionSchema,
             "description": InvalidAuthTokenHTTPException.detail,
         },
-        RoomUnavailableHTTPException.status_code: {
+        AllRoomsAlreadyBookedHTTPException.status_code: {
             "model": BaseHTTPExceptionSchema,
-            "description": RoomUnavailableHTTPException.detail,
+            "description": AllRoomsAlreadyBookedHTTPException.detail,
         },
     },
 )
@@ -83,7 +83,7 @@ async def create_booking(
     try:
         room = await transaction.rooms.get_one(id=data.room_id)
     except NoResultFound:
-        raise InvalidRoomIdForBookingHTTPException
+        raise RoomNotFoundHTTPException
 
     data = BookingCreateSchema(
         user_id=user.id,
@@ -96,6 +96,6 @@ async def create_booking(
             room.hotel_id,
         )
     except RoomUnavailableRepoException:
-        raise RoomUnavailableHTTPException
+        raise AllRoomsAlreadyBookedHTTPException
     await transaction.commit()
     return result
