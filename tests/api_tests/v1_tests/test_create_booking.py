@@ -26,7 +26,7 @@ ROOM_ID, ROOM_QUANTITY = room_id_with_quantity()
             ROOM_ID,
             date.today().isoformat(),
             (date.today() + timedelta(weeks=1)).isoformat(),
-            status.HTTP_400_BAD_REQUEST,
+            status.HTTP_409_CONFLICT,
         )
     ],
 )
