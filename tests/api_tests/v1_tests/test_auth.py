@@ -25,7 +25,7 @@ async def test_auth_flow(
     assert register_response.status_code == status.HTTP_201_CREATED
     register_response_data = register_response.json()
     assert isinstance(register_response_data, dict)
-    assert register_response_data["status"] == "ok"
+    assert register_response_data["email"] == email
 
     login_body = register_body.copy()
     login_response = await ac.post(

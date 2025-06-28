@@ -123,7 +123,7 @@ async def populate_db():
         FacilityCreateSchema,
     )
     for user in users_to_add:
-        user.password = AuthService.hash_password(user.password).decode("utf-8")
+        user.password = AuthService().hash_password(user.password).decode("utf-8")
 
     async with TransactionManager(
         session_factory=async_session_null_pool,
