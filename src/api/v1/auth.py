@@ -1,6 +1,5 @@
 from fastapi import APIRouter
 from fastapi import status
-from sqlalchemy.exc import IntegrityError
 
 from src.api.dependecies import AuthenticateUserDep
 from src.api.dependecies import CurrentUserDep
@@ -11,11 +10,9 @@ from src.exceptions.api.auth import InvalidAuthTokenHTTPException
 from src.exceptions.api.auth import UserAlreadyExistsHTTPException
 from src.schemas.auth import JWTInfoSchema
 from src.schemas.base import BaseHTTPExceptionSchema
-from src.schemas.base import BaseSuccessResponseSchema
 from src.schemas.users import UserAuthSchema
 from src.schemas.users import UserSchema
 from src.services.auth import AuthService
-from src.services.jwt import JWTService
 
 
 router = APIRouter(
@@ -26,7 +23,7 @@ router = APIRouter(
 
 @router.post(
     "/register",
-    response_model=BaseSuccessResponseSchema,
+    response_model=UserSchema,
     status_code=status.HTTP_201_CREATED,
     responses={
         UserAlreadyExistsHTTPException.status_code: {
@@ -38,14 +35,10 @@ router = APIRouter(
 async def register_user(
     data: UserAuthSchema,
     transaction: DbTransactionDep,
-) -> BaseSuccessResponseSchema:
-    data.password = AuthService.hash_password(data.password).decode("utf-8")
-    try:
-        await transaction.users.add(data)
-        await transaction.commit()
-    except IntegrityError:
-        raise UserAlreadyExistsHTTPException
-    return BaseSuccessResponseSchema()
+) -> UserSchema:
+    return await AuthService(transaction).register_user(
+        data=data,
+    )
 
 
 @router.post(
@@ -62,11 +55,8 @@ async def register_user(
 def login_user(
     user: AuthenticateUserDep,
 ) -> JWTInfoSchema:
-    access_token = JWTService.create_access_token_for_user(user.id)
-    refresh_token = JWTService.create_refresh_token_for_user(user.id)
-    return JWTInfoSchema(
-        access=access_token,
-        refresh=refresh_token,
+    return AuthService().login_user(
+        user_id=user.id,
     )
 
 
@@ -85,8 +75,9 @@ def login_user(
 def refresh_jwt(
     user: CurrentUserForRefreshDep,
 ) -> JWTInfoSchema:
-    access_token = JWTService.create_access_token_for_user(user.id)
-    return JWTInfoSchema(access=access_token)
+    return AuthService().refresh_jwt(
+        user_id=user.id,
+    )
 
 
 @router.get(

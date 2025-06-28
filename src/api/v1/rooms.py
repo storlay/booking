@@ -1,8 +1,6 @@
 from fastapi import APIRouter
 from fastapi import status
 from fastapi_cache.decorator import cache
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.exc import NoResultFound
 
 from src.api.dependecies import DbTransactionDep
 from src.api.dependecies import PaginationDep
@@ -10,14 +8,13 @@ from src.api.dependecies import RoomsParamsDep
 from src.exceptions.api.hotels import HotelNotFoundHTTPException
 from src.exceptions.api.rooms import RoomNotFoundHTTPException
 from src.schemas.base import BaseHTTPExceptionSchema
-from src.schemas.base import BaseSuccessResponseSchema
-from src.schemas.facilities import RoomFacilityAddSchema
 from src.schemas.rooms import RoomCreateRequestSchema
-from src.schemas.rooms import RoomCreateSchema
+from src.schemas.rooms import RoomIdSchema
 from src.schemas.rooms import RoomPartiallyUpdateSchema
 from src.schemas.rooms import RoomSchema
 from src.schemas.rooms import RoomUpdateSchema
 from src.schemas.rooms import RoomWithRelsSchema
+from src.services.rooms import RoomService
 
 
 router = APIRouter(
@@ -37,12 +34,9 @@ async def get_all_hotel_rooms(
     pagination: PaginationDep,
     params: RoomsParamsDep,
 ) -> list[RoomWithRelsSchema]:
-    return await transaction.rooms.get_available_for_hotel(
-        hotel_id=params.hotel_id,
-        date_from=params.date_from,
-        date_to=params.date_to,
-        limit=pagination.limit,
-        offset=pagination.offset,
+    return await RoomService(transaction).get_all_hotel_rooms(
+        pagination=pagination,
+        params=params,
     )
 
 
@@ -63,13 +57,10 @@ async def get_hotel_room(
     room_id: int,
     transaction: DbTransactionDep,
 ) -> RoomWithRelsSchema:
-    try:
-        return await transaction.rooms.get_one_with_full_info(
-            hotel_id=hotel_id,
-            id=room_id,
-        )
-    except NoResultFound:
-        raise RoomNotFoundHTTPException
+    return await RoomService(transaction).get_hotel_room(
+        hotel_id=hotel_id,
+        room_id=room_id,
+    )
 
 
 @router.post(
@@ -88,32 +79,15 @@ async def add_room_to_hotel(
     transaction: DbTransactionDep,
     data: RoomCreateRequestSchema,
 ) -> RoomSchema:
-    room_data = RoomCreateSchema(
+    return await RoomService(transaction).add_room_to_hotel(
         hotel_id=hotel_id,
-        **data.model_dump(),
+        data=data,
     )
-    try:
-        room = await transaction.rooms.add(room_data)
-        if data.facilities_ids:
-            facilities_to_assign = [
-                RoomFacilityAddSchema(
-                    room_id=room.id,
-                    facility_id=facility_id,
-                )
-                for facility_id in data.facilities_ids
-            ]
-            await transaction.rooms_facilities.add_bulk(
-                facilities_to_assign,
-            )
-        await transaction.commit()
-    except IntegrityError:
-        raise HotelNotFoundHTTPException
-    return room
 
 
 @router.put(
     "/{hotel_id}/rooms/{room_id}",
-    response_model=BaseSuccessResponseSchema,
+    response_model=RoomIdSchema,
     status_code=status.HTTP_200_OK,
     responses={
         RoomNotFoundHTTPException.status_code: {
@@ -127,32 +101,18 @@ async def update_hotel_room(
     room_id: int,
     transaction: DbTransactionDep,
     data: RoomUpdateSchema,
-) -> BaseSuccessResponseSchema:
-    room_data = RoomCreateSchema(
+) -> RoomIdSchema:
+    await RoomService(transaction).update_hotel_room(
         hotel_id=hotel_id,
-        **data.model_dump(),
+        room_id=room_id,
+        data=data,
     )
-    try:
-        await transaction.rooms.update_one(
-            room_data,
-            hotel_id=hotel_id,
-            id=room_id,
-        )
-        if data.facilities_ids is not None:
-            await transaction.rooms_facilities.set_room_facilities(
-                room_id,
-                data.facilities_ids,
-            )
-
-        await transaction.commit()
-    except NoResultFound:
-        raise RoomNotFoundHTTPException
-    return BaseSuccessResponseSchema()
+    return RoomIdSchema(room_id=room_id)
 
 
 @router.patch(
     "/{hotel_id}/rooms/{room_id}",
-    response_model=BaseSuccessResponseSchema,
+    response_model=RoomIdSchema,
     status_code=status.HTTP_200_OK,
     responses={
         RoomNotFoundHTTPException.status_code: {
@@ -166,28 +126,18 @@ async def update_hotel_room_partial(
     room_id: int,
     transaction: DbTransactionDep,
     data: RoomPartiallyUpdateSchema,
-) -> BaseSuccessResponseSchema:
-    try:
-        await transaction.rooms.update_one(
-            data,
-            partially=True,
-            hotel_id=hotel_id,
-            id=room_id,
-        )
-        if data.facilities_ids is not None:
-            await transaction.rooms_facilities.set_room_facilities(
-                room_id,
-                data.facilities_ids,
-            )
-        await transaction.commit()
-    except NoResultFound:
-        raise RoomNotFoundHTTPException
-    return BaseSuccessResponseSchema()
+) -> RoomIdSchema:
+    await RoomService(transaction).update_hotel_room_partial(
+        hotel_id=hotel_id,
+        room_id=room_id,
+        data=data,
+    )
+    return RoomIdSchema(room_id=room_id)
 
 
 @router.delete(
     "/{hotel_id}/rooms/{room_id}",
-    response_model=BaseSuccessResponseSchema,
+    response_model=RoomIdSchema,
     status_code=status.HTTP_200_OK,
     responses={
         RoomNotFoundHTTPException.status_code: {
@@ -200,13 +150,9 @@ async def delete_hotel_room(
     hotel_id: int,
     room_id: int,
     transaction: DbTransactionDep,
-) -> BaseSuccessResponseSchema:
-    try:
-        await transaction.rooms.delete_one(
-            hotel_id=hotel_id,
-            id=room_id,
-        )
-        await transaction.commit()
-    except NoResultFound:
-        raise RoomNotFoundHTTPException
-    return BaseSuccessResponseSchema()
+) -> RoomIdSchema:
+    await RoomService(transaction).delete_hotel_room(
+        hotel_id=hotel_id,
+        room_id=room_id,
+    )
+    return RoomIdSchema(room_id=room_id)

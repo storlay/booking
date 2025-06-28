@@ -4,20 +4,18 @@ from fastapi import APIRouter
 from fastapi import Body
 from fastapi import status
 from fastapi_cache.decorator import cache
-from sqlalchemy.exc import NoResultFound
-from starlette.status import HTTP_200_OK
 
 from src.api.dependecies import CurrentUserDep
 from src.api.dependecies import DbTransactionDep
 from src.api.dependecies import HotelsParamsDep
 from src.api.dependecies import PaginationDep
-from src.api.v1.utils import get_hotels_filters_from_params
 from src.exceptions.api.hotels import HotelNotFoundHTTPException
 from src.schemas.base import BaseHTTPExceptionSchema
-from src.schemas.base import BaseSuccessResponseSchema
 from src.schemas.hotels import HotelCreateOrUpdateSchema
+from src.schemas.hotels import HotelIdSchema
 from src.schemas.hotels import HotelSchema
 from src.schemas.hotels import PartialUpdateHotelSchema
+from src.services.hotels import HotelService
 
 
 router = APIRouter(
@@ -38,12 +36,9 @@ async def get_hotels(
     transaction: DbTransactionDep,
     params: HotelsParamsDep,
 ) -> list[HotelSchema]:
-    filters = get_hotels_filters_from_params(params)
-    return await transaction.hotels.get_filtered(
-        pagination.limit,
-        pagination.offset,
-        None,
-        *filters,
+    return await HotelService(transaction).get_hotels(
+        params,
+        pagination,
     )
 
 
@@ -60,13 +55,11 @@ async def get_available_hotels(
     date_from: date,
     date_to: date,
 ) -> list[HotelSchema]:
-    filters = get_hotels_filters_from_params(params)
-    return await transaction.hotels.get_with_available_rooms(
+    return await HotelService(transaction).get_available_hotels(
         date_from,
         date_to,
-        pagination.limit,
-        pagination.offset,
-        filters,
+        params,
+        pagination,
     )
 
 
@@ -86,12 +79,9 @@ async def get_hotel(
     hotel_id: int,
     transaction: DbTransactionDep,
 ) -> HotelSchema:
-    try:
-        return await transaction.hotels.get_one(
-            id=hotel_id,
-        )
-    except NoResultFound:
-        raise HotelNotFoundHTTPException
+    return await HotelService(transaction).get_hotel(
+        hotel_id=hotel_id,
+    )
 
 
 @router.post(
@@ -113,15 +103,15 @@ async def add_hotel(
         }
     ),
 ) -> HotelSchema:
-    result = await transaction.hotels.add(data)
-    await transaction.commit()
-    return result
+    return await HotelService(transaction).add_hotel(
+        data=data,
+    )
 
 
 @router.put(
     "/{hotel_id}",
-    response_model=BaseSuccessResponseSchema,
-    status_code=HTTP_200_OK,
+    response_model=HotelIdSchema,
+    status_code=status.HTTP_200_OK,
     responses={
         HotelNotFoundHTTPException.status_code: {
             "model": BaseHTTPExceptionSchema,
@@ -143,21 +133,17 @@ async def update_hotel(
             }
         }
     ),
-) -> BaseSuccessResponseSchema:
-    try:
-        await transaction.hotels.update_one(
-            data,
-            id=hotel_id,
-        )
-        await transaction.commit()
-    except NoResultFound:
-        raise HotelNotFoundHTTPException
-    return BaseSuccessResponseSchema()
+) -> HotelIdSchema:
+    await HotelService(transaction).update_hotel(
+        hotel_id=hotel_id,
+        data=data,
+    )
+    return HotelIdSchema(hotel_id=hotel_id)
 
 
 @router.patch(
     "/{hotel_id}",
-    response_model=BaseSuccessResponseSchema,
+    response_model=HotelIdSchema,
     status_code=status.HTTP_200_OK,
     responses={
         HotelNotFoundHTTPException.status_code: {
@@ -179,22 +165,17 @@ async def update_hotel_partial(
             }
         }
     ),
-) -> BaseSuccessResponseSchema:
-    try:
-        await transaction.hotels.update_one(
-            data,
-            partially=True,
-            id=hotel_id,
-        )
-        await transaction.commit()
-    except NoResultFound:
-        raise HotelNotFoundHTTPException
-    return BaseSuccessResponseSchema()
+) -> HotelIdSchema:
+    await HotelService(transaction).update_hotel_partial(
+        data=data,
+        hotel_id=hotel_id,
+    )
+    return HotelIdSchema(hotel_id=hotel_id)
 
 
 @router.delete(
     "/{hotel_id}",
-    response_model=BaseSuccessResponseSchema,
+    response_model=HotelIdSchema,
     status_code=status.HTTP_200_OK,
     responses={
         HotelNotFoundHTTPException.status_code: {
@@ -206,12 +187,6 @@ async def update_hotel_partial(
 async def delete_hotel(
     hotel_id: int,
     transaction: DbTransactionDep,
-) -> BaseSuccessResponseSchema:
-    try:
-        await transaction.hotels.delete_one(
-            id=hotel_id,
-        )
-        await transaction.commit()
-    except NoResultFound:
-        raise HotelNotFoundHTTPException
-    return BaseSuccessResponseSchema()
+) -> HotelIdSchema:
+    await HotelService(transaction).delete_hotel(hotel_id=hotel_id)
+    return HotelIdSchema(hotel_id=hotel_id)

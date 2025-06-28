@@ -5,12 +5,12 @@ from datetime import timedelta
 import jwt
 
 from src.config import settings
+from src.services.base import BaseService
 
 
-class JWTService:
-    @classmethod
+class JWTService(BaseService):
     def create_access_token_for_user(
-        cls,
+        self,
         user_id: int,
     ) -> str:
         base_payload = {
@@ -18,27 +18,26 @@ class JWTService:
             "owner": settings.jwt.TOKEN_OWNER,
             settings.jwt.TOKEN_TYPE_FIELD: settings.jwt.ACCESS_TOKEN_TYPE,
         }
-        return cls._encode(
+        return self._encode(
             base_payload,
             settings.jwt.ACCESS_TOKEN_EXPIRE_TIMEDELTA,
         )
 
-    @classmethod
     def create_refresh_token_for_user(
-        cls,
+        self,
         user_id: int,
     ) -> str:
         base_payload = {
             "sub": str(user_id),
             settings.jwt.TOKEN_TYPE_FIELD: settings.jwt.REFRESH_TOKEN_TYPE,
         }
-        return cls._encode(
+        return self._encode(
             base_payload,
             settings.jwt.REFRESH_TOKEN_EXPIRE_TIMEDELTA,
         )
 
-    @staticmethod
     def _encode(
+        self,
         payload: dict,
         expire_timedelta: timedelta,
         private_key: str = settings.jwt.PRIVATE_KEY_PATH.read_text(),
@@ -57,8 +56,8 @@ class JWTService:
             algorithm=algorithm,
         )
 
-    @staticmethod
     def decode(
+        self,
         token: str | bytes,
         public_key: str = settings.jwt.PUBLIC_KEY_PATH.read_text(),
         algorithm: str = settings.jwt.ALGORITHM,

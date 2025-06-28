@@ -6,10 +6,14 @@ from sqlalchemy import delete
 from sqlalchemy import insert
 from sqlalchemy import select
 from sqlalchemy import update
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.base import ExecutableOption
 
 from src.db.database import Base
+from src.exceptions.repository.hotels import CannotAddObjectRepoException
+from src.exceptions.repository.hotels import ObjectNotFoundRepoException
 from src.repositories.mappers.base import BaseDataMapper
 
 
@@ -94,7 +98,12 @@ class BaseRepository:
         if query_options is not None:
             query = query.options(*query_options)
         result = await self.session.execute(query)
-        model = result.scalar_one()
+
+        try:
+            model = result.scalar_one()
+        except NoResultFound as ex:
+            raise ObjectNotFoundRepoException from ex
+
         return self.mapper.map_to_domain_entity(model, with_rels=with_rels)
 
     async def add(
@@ -106,10 +115,13 @@ class BaseRepository:
             insert(self.model)
             .values(**data.model_dump())
             .returning(self.model)
-        )
+         )
         # fmt: on
-        result = await self.session.execute(stmt)
-        model = result.scalar_one()
+        try:
+            result = await self.session.execute(stmt)
+            model = result.scalar_one()
+        except IntegrityError as ex:
+            raise CannotAddObjectRepoException from ex
         return self.mapper.map_to_domain_entity(model)
 
     async def add_bulk(
@@ -122,7 +134,10 @@ class BaseRepository:
             .values([item.model_dump() for item in data])
         )
         # fmt: on
-        await self.session.execute(stmt)
+        try:
+            await self.session.execute(stmt)
+        except IntegrityError as ex:
+            raise CannotAddObjectRepoException from ex
 
     async def update_one(
         self,
@@ -139,7 +154,10 @@ class BaseRepository:
         )
         # fmt: on
         result = await self.session.execute(stmt)
-        return result.scalar_one()
+        try:
+            return result.scalar_one()
+        except NoResultFound as ex:
+            raise ObjectNotFoundRepoException from ex
 
     async def delete_one(
         self,
@@ -153,7 +171,10 @@ class BaseRepository:
         )
         # fmt: on
         result = await self.session.execute(stmt)
-        return result.scalar_one()
+        try:
+            return result.scalar_one()
+        except NoResultFound as ex:
+            raise ObjectNotFoundRepoException from ex
 
     async def delete_bulk(
         self,

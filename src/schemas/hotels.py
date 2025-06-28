@@ -41,3 +41,7 @@ class HotelsQueryParamsSchema(PartialUpdateHotelSchema):
         str | None,
         MaxLen(1000),
     ] = None
+
+
+class HotelIdSchema(BaseModel):
+    hotel_id: IntegerId

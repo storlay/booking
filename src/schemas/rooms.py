@@ -87,3 +87,7 @@ class RoomsQueryParamsSchema(BaseModel):
         if self.date_from > self.date_to:
             raise ValueError("`date_from` cannot be earlier than `date_to`")
         return self
+
+
+class RoomIdSchema(BaseModel):
+    room_id: IntegerId

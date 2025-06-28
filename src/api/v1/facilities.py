@@ -1,7 +1,6 @@
 from fastapi import APIRouter
 from fastapi import status
 from fastapi_cache.decorator import cache
-from sqlalchemy.exc import IntegrityError
 
 from src.api.dependecies import DbTransactionDep
 from src.api.dependecies import PaginationDep
@@ -9,6 +8,7 @@ from src.exceptions.api.facilities import FacilityAlreadyExistsHTTPException
 from src.schemas.base import BaseHTTPExceptionSchema
 from src.schemas.facilities import FacilityCreateSchema
 from src.schemas.facilities import FacilitySchema
+from src.services.facilities import FacilityService
 
 
 router = APIRouter(
@@ -27,9 +27,8 @@ async def get_all_facilities(
     transaction: DbTransactionDep,
     pagination: PaginationDep,
 ) -> list[FacilitySchema]:
-    return await transaction.facilities.get_all(
-        pagination.limit,
-        pagination.offset,
+    return await FacilityService(transaction).get_all_facilities(
+        pagination=pagination,
     )
 
 
@@ -48,9 +47,6 @@ async def create_facility(
     transaction: DbTransactionDep,
     data: FacilityCreateSchema,
 ) -> FacilitySchema:
-    try:
-        result = await transaction.facilities.add(data)
-        await transaction.commit()
-        return result
-    except IntegrityError:
-        raise FacilityAlreadyExistsHTTPException
+    return await FacilityService(transaction).create_facility(
+        data=data,
+    )

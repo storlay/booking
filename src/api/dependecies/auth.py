@@ -35,7 +35,7 @@ def get_token_payload(
     token_data: HTTPAuthorizationCredentials = Depends(HTTPBearer()),
 ) -> dict:
     try:
-        return JWTService.decode(token_data.credentials)
+        return JWTService().decode(token_data.credentials)
     except jwt.exceptions.InvalidTokenError:
         raise InvalidAuthTokenHTTPException
 
