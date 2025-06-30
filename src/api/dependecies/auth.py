@@ -26,7 +26,7 @@ async def authenticate_user(
     )
     if not user:
         raise IncorrectAuthCredsHTTPException
-    if not AuthService.check_password(data.password, user.password):
+    if not AuthService().check_password(data.password, user.password):
         raise IncorrectAuthCredsHTTPException
     return user
 

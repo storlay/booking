@@ -47,9 +47,8 @@ class AuthService(BaseService):
             salt,
         )
 
-    @classmethod
     def check_password(
-        cls,
+        self,
         password: str,
         hashed_password: bytes,
     ) -> bool:
