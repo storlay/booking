@@ -59,7 +59,7 @@ services:
   flower:
     build:
       context: ../
-    container_name: flower
+    container_name: booking-flower
     env_file:
       - ../.env
     command: [ "./infra/commands/celery.sh", "flower" ]
