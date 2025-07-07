@@ -3,6 +3,7 @@ services:
     build:
       context: ../
     container_name: booking-api
+    restart: unless-stopped
     command: ./infra/commands/api.sh
     env_file:
       - ../.env
@@ -19,6 +20,7 @@ services:
   db:
     image: postgres:17
     container_name: booking-db
+    restart: unless-stopped
     ports:
       - "5432:5432"
     volumes:
@@ -32,6 +34,7 @@ services:
     build:
       context: ../
     container_name: booking-celery
+    restart: unless-stopped
     command: [ "./infra/commands/celery.sh", "celery" ]
     env_file:
       - ../.env
@@ -46,6 +49,7 @@ services:
     build:
       context: ../
     container_name: booking-celery-beat
+    restart: unless-stopped
     command: [ "./infra/commands/celery.sh", "beat" ]
     env_file:
       - ../.env
@@ -60,6 +64,7 @@ services:
     build:
       context: ../
     container_name: booking-flower
+    restart: unless-stopped
     env_file:
       - ../.env
     command: [ "./infra/commands/celery.sh", "flower" ]
@@ -73,10 +78,22 @@ services:
   redis:
     image: redis:7.4.4
     container_name: booking-redis
+    restart: unless-stopped
     networks:
       - booking-backend-tier
     ports:
       - "6379:6379"
+
+  nginx:
+    build: ../nginx
+    container_name: booking-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+    networks:
+      - booking-backend-tier
 
 
 volumes:
