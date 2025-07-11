@@ -1,73 +1,82 @@
 services:
-  api:
-    container_name: booking-api-test
+  tests:
+    image: booking-api-image:latest
+    container_name: booking-runner-test
     command: ./infra/commands/test-api.sh
     env_file:
       - ../.env-test
-    ports:
-      - "8001:8000"
     volumes:
-      - booking_static_test:/app/src/static/
+      - ../src/certs:/app/src/certs:ro
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_healthy
+      celery:
+        condition: service_started
+    networks:
+      - booking-backend-tier
 
   db:
+    image: postgres:16
     container_name: booking-db-test
-    ports:
-      - "5433:5432"
-    volumes:
-      - postgres_data_test:/var/lib/postgresql/data
     env_file:
       - ../.env-test
+    volumes:
+      - postgres_data_test:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB" ]
+      test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER" ]
       interval: 5s
       timeout: 5s
       retries: 5
-
-  celery:
-    container_name: booking-celery-test
-    env_file:
-      - ../.env-test
-    volumes:
-      - booking_static_test:/app/src/static/
-    depends_on:
-      redis:
-        condition: service_healthy
-      db:
-        condition: service_healthy
-
-  beat:
-    container_name: booking-celery-beat-test
-    env_file:
-      - ../.env-test
-    volumes:
-      - booking_static_test:/app/src/static/
-    depends_on:
-      celery:
-        condition: service_started
-      redis:
-        condition: service_healthy
+    networks:
+      - booking-backend-tier
 
   redis:
+    image: redis:7
     container_name: booking-redis-test
-    ports:
-      - "6380:6379"
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - booking-backend-tier
 
-  flower:
-    profiles:
-      - donotstart
+  celery:
+    image: booking-api-image:latest
+    container_name: booking-celery-test
+    command: [ "./infra/commands/celery.sh", "celery" ]
     env_file:
       - ../.env-test
+    volumes:
+      - ../src/certs:/app/src/certs:ro
+    depends_on:
+      redis:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    networks:
+      - booking-backend-tier
+
+  beat:
+    image: booking-api-image:latest
+    container_name: booking-celery-beat-test
+    command: [ "./infra/commands/celery.sh", "beat" ]
+    env_file:
+      - ../.env-test
+    volumes:
+      - ../src/certs:/app/src/certs:ro
+    depends_on:
+      celery:
+        condition: service_started
+    networks:
+      - booking-backend-tier
+
 
 volumes:
   postgres_data_test:
-  booking_static_test:
+
+networks:
+  booking-backend-tier:
+    driver: bridge
