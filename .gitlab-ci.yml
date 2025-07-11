@@ -16,17 +16,17 @@ build-job:
 lint-job:
   stage: lint_format
   script:
-    - docker run --rm booking-api-image ruff check
+    - docker run --rm booking-api-image uv run ruff check
 
 format-job:
   stage: lint_format
   script:
-    - docker run --rm booking-api-image ruff format --check
+    - docker run --rm booking-api-image uv run ruff format --check
 
 migrations-job:
   stage: migrations
   script:
-    - docker run --rm --network myNetwork booking-api-image alembic upgrade head
+    - docker run --rm --network myNetwork booking-api-image uv run alembic upgrade head
 
 test-job:
   stage: test
