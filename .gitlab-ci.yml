@@ -8,7 +8,7 @@ build-job:
     - cp ${PROD_ENV} .env
     - cp ${TEST_ENV} .env-test
   script:
-    - docker build -t booking-api-image ./infra/docker-compose.ci.yml
+    - docker build -t booking-api-image -f ./infra/docker-compose.ci.yml
 
 deploy-job:
   stage: deploy
