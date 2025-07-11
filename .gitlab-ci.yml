@@ -32,7 +32,6 @@ format-job:
   stage: lint_format
   script:
     - docker run --rm booking-api-image uv run ruff format --check
-# --------------------------------------------------
 
 migrations-job:
   stage: migrations
