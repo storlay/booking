@@ -1,0 +1,93 @@
+services:
+  api:
+    image: booking-api-image:latest
+    container_name: booking-api
+    restart: unless-stopped
+    command: ./infra/commands/api.sh
+    volumes:
+      - booking_static:/app/src/static/
+    networks:
+      - booking-backend-tier
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: postgres:17
+    container_name: booking-db
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - booking-backend-tier
+
+  celery:
+    image: booking-api-image:latest
+    container_name: booking-celery
+    restart: unless-stopped
+    command: [ "./infra/commands/celery.sh", "celery" ]
+    volumes:
+      - booking_static:/app/src/static/
+    networks:
+      - booking-backend-tier
+    depends_on:
+      - redis
+
+  beat:
+    image: booking-api-image:latest
+    container_name: booking-celery-beat
+    restart: unless-stopped
+    command: [ "./infra/commands/celery.sh", "beat" ]
+    volumes:
+      - booking_static:/app/src/static/
+    networks:
+      - booking-backend-tier
+    depends_on:
+      - celery
+
+  flower:
+    image: booking-api-image:latest
+    container_name: booking-flower
+    restart: unless-stopped
+    command: [ "./infra/commands/celery.sh", "flower" ]
+    ports:
+      - "5555:5555"
+    networks:
+      - booking-backend-tier
+    depends_on:
+      - celery
+
+  redis:
+    image: redis:7.4.4
+    container_name: booking-redis
+    restart: unless-stopped
+    networks:
+      - booking-backend-tier
+    ports:
+      - "6379:6379"
+
+  nginx:
+    build: ../nginx
+    container_name: booking-nginx
+    restart: unless-stopped
+    ports:
+      - "443:443"
+    volumes:
+      - ../nginx/nginx.conf:/etc/nginx/nginx.conf
+      - /etc/letsencrypt:/etc/letsencrypt
+      - /var/lib/letsencrypt:/var/lib/letsencrypt
+    depends_on:
+      - api
+    networks:
+      - booking-backend-tier
+
+
+volumes:
+  postgres_data:
+  booking_static:
+
+networks:
+  booking-backend-tier:
+    driver: bridge
