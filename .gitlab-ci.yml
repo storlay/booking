@@ -1,8 +1,13 @@
 .prepare-prod-runtime:
   before_script:
+    - echo "--- [ОТЛАДКА] Печатаем содержимое PROD_ENV ---"
+    - echo "$PROD_ENV"
+    - echo "------------------------------------------------"
+    - echo "Создаем .env файл..."
     - echo "$PROD_ENV" > .env
-    - echo "$JWT_PRIVATE_KEY" > ./src/certs/jwt/private.pem
-    - echo "$JWT_PUBLIC_KEY" > ./src/certs/jwt/public.pem
+    - echo "--- [ОТЛАДКА] Печатаем созданный .env файл ---"
+    - cat .env
+    - echo "----------------------------------------------"
 
 .prepare-test-runtime:
   before_script:
