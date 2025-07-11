@@ -10,6 +10,8 @@ build-job:
   before_script:
     - echo "$JWT_PRIVATE_KEY" > ./src/certs/jwt/private.pem
     - echo "$JWT_PUBLIC_KEY" > ./src/certs/jwt/public.pem
+    - cp ${PROD_ENV} .env
+    - cp ${TEST_ENV} .env-test
   script:
     - docker build -t booking-api-image .
     - docker build -t booking-nginx-image ./nginx
@@ -32,8 +34,5 @@ tests-job:
 
 deploy-job:
   stage: deploy
-  before_script:
-    - cp ${PROD_ENV} .env
-    - cp ${TEST_ENV} .env-test
   script:
     - docker compose -f ./infra/docker-compose.ci.yml up -d
