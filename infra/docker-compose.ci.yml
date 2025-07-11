@@ -6,8 +6,6 @@ services:
     command: ./infra/commands/api.sh
     volumes:
       - booking_static:/app/src/static/
-      - ../src/certs/jwt/private.pem:/app/src/certs/jwt/private.pem:ro
-      - ../src/certs/jwt/public.pem:/app/src/certs/jwt/public.pem:ro
     networks:
       - booking-backend-tier
     depends_on:
