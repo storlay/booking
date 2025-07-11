@@ -1,17 +1,27 @@
 stages:
+  - prepare-job
   - build
   - lint_format
   - migrations
   - tests
   - deploy
 
-build-job:
-  stage: build
-  before_script:
+prepare-job:
+  stage: prepare
+  script:
+    - echo "$PROD_ENV" > .env
+    - echo "$TEST_ENV" > .env-test
+    - mkdir -p ./src/certs/jwt
     - echo "$JWT_PRIVATE_KEY" > ./src/certs/jwt/private.pem
     - echo "$JWT_PUBLIC_KEY" > ./src/certs/jwt/public.pem
-    - cp ${PROD_ENV} .env
-    - cp ${TEST_ENV} .env-test
+  artifacts:
+    paths:
+      - .env
+      - .env-test
+      - ./src/certs/
+
+build-job:
+  stage: build
   script:
     - docker build -t booking-api-image .
     - docker build -t booking-nginx-image ./nginx
