@@ -18,7 +18,7 @@ services:
       - booking-backend-tier
 
   db:
-    image: postgres:16
+    image: postgres:17
     container_name: booking-db-test
     env_file:
       - ../.env-test
@@ -33,7 +33,7 @@ services:
       - booking-backend-tier
 
   redis:
-    image: redis:7
+    image: redis:7.4.4
     container_name: booking-redis-test
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
