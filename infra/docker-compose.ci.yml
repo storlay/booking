@@ -8,8 +8,6 @@ services:
       - booking_static:/app/src/static/
     networks:
       - booking-backend-tier
-    env_file:
-      - ../.env
     depends_on:
       - db
       - redis
@@ -22,8 +20,6 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    env_file:
-      - ../.env
     networks:
       - booking-backend-tier
 
@@ -36,8 +32,6 @@ services:
       - booking_static:/app/src/static/
     networks:
       - booking-backend-tier
-    env_file:
-      - ../.env
     depends_on:
       - redis
 
@@ -50,8 +44,6 @@ services:
       - booking_static:/app/src/static/
     networks:
       - booking-backend-tier
-    env_file:
-      - ../.env
     depends_on:
       - celery
 
@@ -64,8 +56,6 @@ services:
       - "5555:5555"
     networks:
       - booking-backend-tier
-    env_file:
-      - ../.env
     depends_on:
       - celery
 

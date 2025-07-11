@@ -1,61 +1,39 @@
-.prepare-jwt-keys:
-  before_script:
-    - mkdir -p ./src/certs/jwt
-    - echo "$JWT_PRIVATE_KEY" > ./src/certs/jwt/private.pem
-    - echo "$JWT_PUBLIC_KEY" > ./src/certs/jwt/public.pem
-
-.prepare-prod-env:
-  before_script:
-    - echo "$PROD_ENV" > .env
-
-.prepare-test-env:
-  before_script:
-    - echo "$TEST_ENV" > .env-test
-
-
 stages:
   - build
   - lint_format
   - migrations
-  - tests
+  - test
   - deploy
 
 build-job:
   stage: build
-  extends: .prepare-jwt-keys
+  before_script:
+    - cp ${PROD_ENV} .env
+    - cp ${TEST_ENV} .env-test
   script:
     - docker build -t booking-api-image .
-    - docker build -t booking-nginx-image ./nginx
 
 lint-job:
   stage: lint_format
   script:
-    - docker run --rm booking-api-image uv run ruff check
+    - docker run --rm booking-api-image ruff check
 
 format-job:
   stage: lint_format
   script:
-    - docker run --rm booking-api-image uv run ruff format --check
+    - docker run --rm booking-api-image ruff format --check
 
 migrations-job:
   stage: migrations
-  extends:
-    - .prepare-prod-env
   script:
-    - docker run --rm --env-file .env booking-api-image uv run alembic upgrade head
+    - docker run --rm --network myNetwork booking-api-image alembic upgrade head
 
-tests-job:
-  stage: tests
-  extends:
-    - .prepare-jwt-keys
-    - .prepare-test-env
+test-job:
+  stage: test
   script:
     - docker-compose -f infra/docker-compose.yml -f infra/docker-compose.test.yml up --abort-on-container-exit
 
 deploy-job:
   stage: deploy
-  extends:
-    - .prepare-jwt-keys
-    - .prepare-prod-env
   script:
     - docker compose -f ./infra/docker-compose.ci.yml up -d
