@@ -1,5 +1,5 @@
 services:
-  tests:
+  api:
     image: booking-api-image:latest
     container_name: booking-runner-test
     command: ./infra/commands/test-api.sh
