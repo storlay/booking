@@ -65,6 +65,8 @@ services:
   flower:
     profiles:
       - donotstart
+    env_file:
+      - ../.env-test
 
 volumes:
   postgres_data_test:
