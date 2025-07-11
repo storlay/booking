@@ -1,5 +1,8 @@
 stages:
   - build
+  - lint_format
+  - migrations
+  - tests
   - deploy
 
 build-job:
@@ -10,6 +13,22 @@ build-job:
   script:
     - docker build -t booking-api-image .
     - docker build -t booking-nginx-image ./nginx
+
+lint-job:
+  stage: lint_format
+  script: docker run --rm booking-api-image uv run ruff check
+
+format-job:
+  stage: lint_format
+  script: docker run --rm booking-api-image uv run ruff format --check
+
+migrations-job:
+  stage: migrations
+  script: docker run --rm booking-api-image uv run alembic upgrade head
+
+tests-job:
+  stage: tests
+  script: docker-compose -f infra/docker-compose.yml -f infra/docker-compose.test.yml up --build --abort-on-container-exit
 
 deploy-job:
   stage: deploy
