@@ -7,6 +7,8 @@ build-job:
   before_script:
     - cp ${PROD_ENV} .env
     - cp ${TEST_ENV} .env-test
+    - echo "$JWT_PRIVATE_KEY" > ./src/certs/jwt/private.pem
+    - echo "$JWT_PUBLIC_KEY" > ./src/certs/jwt/public.pem
   script:
     - docker build -t booking-api-image .
     - docker build -t booking-nginx-image ./nginx
