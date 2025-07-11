@@ -31,7 +31,7 @@ lint-job:
   stage: lint_format
   script:
     - docker run --rm booking-api-image uv run ruff check
-    -
+
 format-job:
   stage: lint_format
   script:
