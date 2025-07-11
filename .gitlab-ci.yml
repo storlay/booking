@@ -42,7 +42,7 @@ migrations-job:
   extends:
     - .prepare-prod-env
   script:
-    - docker run --rm booking-api-image uv run alembic upgrade head
+    - docker run --rm --env-file .env booking-api-image uv run alembic upgrade head
 
 tests-job:
   stage: tests
