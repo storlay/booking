@@ -37,7 +37,7 @@ migrations-job:
   stage: migrations
   extends: .prepare-prod-runtime
   script:
-    - docker run --rm --env-file .env booking-api-image uv run alembic upgrade head
+    - docker-compose -f infra/docker-compose.ci.yml run --rm api uv run alembic upgrade head
 
 test-job:
   stage: test
