@@ -39,7 +39,7 @@ test-job:
   stage: test
   extends: .prepare-env
   before_script:
-    - !reference [ .prepare-test-runtime, before_script ]
+    - !reference [ .prepare-env, before_script ]
     - echo "--- [DEBUG] File structure on host before mount ---"
     - ls -laR ./src/certs
     - echo "----------------------------------------------------"
