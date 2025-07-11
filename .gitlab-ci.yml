@@ -26,7 +26,7 @@ format-job:
 migrations-job:
   stage: migrations
   script:
-    - docker run --rm --network myNetwork booking-api-image uv run alembic upgrade head
+    - docker run --rm booking-api-image uv run alembic upgrade head
 
 test-job:
   stage: test
