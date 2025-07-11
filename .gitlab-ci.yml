@@ -1,3 +1,16 @@
+.prepare-prod-runtime:
+  before_script:
+    - echo "$PROD_ENV" > .env
+    - echo "$JWT_PRIVATE_KEY" > ./src/certs/jwt/private.pem
+    - echo "$JWT_PUBLIC_KEY" > ./src/certs/jwt/public.pem
+
+.prepare-test-runtime:
+  before_script:
+    - echo "$TEST_ENV" > .env-test
+    - echo "$JWT_PRIVATE_KEY" > ./src/certs/jwt/private.pem
+    - echo "$JWT_PUBLIC_KEY" > ./src/certs/jwt/public.pem
+
+
 stages:
   - build
   - lint_format
@@ -7,33 +20,34 @@ stages:
 
 build-job:
   stage: build
-  before_script:
-    - cp ${PROD_ENV} .env
-    - cp ${TEST_ENV} .env-test
   script:
     - docker build -t booking-api-image .
+    - docker build -t booking-nginx-image ./nginx
 
 lint-job:
   stage: lint_format
   script:
     - docker run --rm booking-api-image uv run ruff check
-
 format-job:
   stage: lint_format
   script:
     - docker run --rm booking-api-image uv run ruff format --check
+# --------------------------------------------------
 
 migrations-job:
   stage: migrations
+  extends: .prepare-prod-runtime
   script:
-    - docker run --rm booking-api-image uv run alembic upgrade head
+    - docker run --rm --env-file .env booking-api-image uv run alembic upgrade head
 
 test-job:
   stage: test
+  extends: .prepare-test-runtime
   script:
     - docker-compose -f infra/docker-compose.yml -f infra/docker-compose.test.yml up --abort-on-container-exit
 
 deploy-job:
   stage: deploy
+  extends: .prepare-prod-runtime
   script:
     - docker compose -f ./infra/docker-compose.ci.yml up -d
