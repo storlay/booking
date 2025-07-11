@@ -9,7 +9,7 @@ build-job:
     - cp ${TEST_ENV} .env-test
   script:
     - docker build -t booking-api-image .
-    - docker build -t booking-nginx-image -f ./nginx
+    - docker build -t booking-nginx-image ./nginx
 
 deploy-job:
   stage: deploy
