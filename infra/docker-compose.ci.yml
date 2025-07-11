@@ -9,7 +9,7 @@ services:
     networks:
       - booking-backend-tier
     env_file:
-      - ./.env
+      - ../.env
     depends_on:
       - db
       - redis
@@ -23,7 +23,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     env_file:
-      - ./.env
+      - ../.env
     networks:
       - booking-backend-tier
 
@@ -37,7 +37,7 @@ services:
     networks:
       - booking-backend-tier
     env_file:
-      - ./.env
+      - ../.env
     depends_on:
       - redis
 
@@ -51,7 +51,7 @@ services:
     networks:
       - booking-backend-tier
     env_file:
-      - ./.env
+      - ../.env
     depends_on:
       - celery
 
@@ -65,7 +65,7 @@ services:
     networks:
       - booking-backend-tier
     env_file:
-      - ./.env
+      - ../.env
     depends_on:
       - celery
 
