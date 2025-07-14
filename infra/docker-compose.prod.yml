@@ -3,15 +3,16 @@ services:
     image: booking-api-image:latest
     container_name: booking-api
     restart: unless-stopped
-    command: ./infra/commands/api.sh
+    command: ["./infra/commands/entrypoint-ci.sh", "./infra/commands/api.sh"]
     volumes:
-      - ../src/certs/jwt/private.pem:/app/src/certs/jwt/private.pem:ro
-      - ../src/certs/jwt/public.pem:/app/src/certs/jwt/public.pem:ro
       - booking_static:/app/src/static/
     networks:
       - booking-backend-tier
     env_file:
       - ../.env
+    environment:
+      - JWT_PRIVATE_KEY
+      - JWT_PUBLIC_KEY
     depends_on:
       - db
       - redis
@@ -33,15 +34,16 @@ services:
     image: booking-api-image:latest
     container_name: booking-celery
     restart: unless-stopped
-    command: [ "./infra/commands/celery.sh", "celery" ]
+    command: ["./infra/commands/entrypoint-ci.sh", "./infra/commands/celery.sh", "celery"]
     volumes:
-      - ../src/certs/jwt/private.pem:/app/src/certs/jwt/private.pem:ro
-      - ../src/certs/jwt/public.pem:/app/src/certs/jwt/public.pem:ro
       - booking_static:/app/src/static/
     networks:
       - booking-backend-tier
     env_file:
       - ../.env
+    environment:
+      - JWT_PRIVATE_KEY
+      - JWT_PUBLIC_KEY
     depends_on:
       - redis
 
@@ -49,29 +51,16 @@ services:
     image: booking-api-image:latest
     container_name: booking-celery-beat
     restart: unless-stopped
-    command: [ "./infra/commands/celery.sh", "beat" ]
+    command: ["./infra/commands/entrypoint-ci.sh", "./infra/commands/celery.sh", "beat"]
     volumes:
-      - ../src/certs/jwt/private.pem:/app/src/certs/jwt/private.pem:ro
-      - ../src/certs/jwt/public.pem:/app/src/certs/jwt/public.pem:ro
       - booking_static:/app/src/static/
     networks:
       - booking-backend-tier
     env_file:
       - ../.env
-    depends_on:
-      - celery
-
-  flower:
-    image: booking-api-image:latest
-    container_name: booking-flower
-    restart: unless-stopped
-    command: [ "./infra/commands/celery.sh", "flower" ]
-    ports:
-      - "5555:5555"
-    networks:
-      - booking-backend-tier
-    env_file:
-      - ../.env
+    environment:
+      - JWT_PRIVATE_KEY
+      - JWT_PUBLIC_KEY
     depends_on:
       - celery
 
