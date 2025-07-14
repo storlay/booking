@@ -41,6 +41,8 @@ test-job:
   extends: .prepare-test-env
   script:
     - docker-compose -f infra/docker-compose.ci-test.yml up --build --abort-on-container-exit
+  after_script:
+    - docker-compose -f infra/docker-compose.ci-test.yml down -v --remove-orphans
 
 deploy-job:
   stage: deploy
