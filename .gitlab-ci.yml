@@ -38,11 +38,6 @@ migrations-job:
 test-job:
   stage: test
   extends: .prepare-env
-  before_script:
-    - !reference [ .prepare-env, before_script ]
-    - echo "--- [DEBUG] File structure on host before mount ---"
-    - ls -laR ./src/certs
-    - echo "----------------------------------------------------"
   script:
     - docker-compose -f infra/docker-compose.test.yml up --build --abort-on-container-exit
 
