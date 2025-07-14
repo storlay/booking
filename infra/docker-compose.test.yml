@@ -1,7 +1,7 @@
 services:
   api:
     image: booking-api-image:latest
-    container_name: booking-runner-test
+    container_name: booking-api-test
     command: ./infra/commands/test-api.sh
     env_file:
       - ../.env-test
