@@ -5,7 +5,8 @@ services:
     restart: unless-stopped
     command: ./infra/commands/api.sh
     volumes:
-      - ../src/certs:/app/src/certs:ro
+      - ../src/certs/jwt/private.pem:/app/src/certs/jwt/private.pem:ro
+      - ../src/certs/jwt/public.pem:/app/src/certs/jwt/public.pem:ro
       - booking_static:/app/src/static/
     networks:
       - booking-backend-tier
@@ -34,7 +35,8 @@ services:
     restart: unless-stopped
     command: [ "./infra/commands/celery.sh", "celery" ]
     volumes:
-      - ../src/certs:/app/src/certs:ro
+      - ../src/certs/jwt/private.pem:/app/src/certs/jwt/private.pem:ro
+      - ../src/certs/jwt/public.pem:/app/src/certs/jwt/public.pem:ro
       - booking_static:/app/src/static/
     networks:
       - booking-backend-tier
@@ -49,7 +51,8 @@ services:
     restart: unless-stopped
     command: [ "./infra/commands/celery.sh", "beat" ]
     volumes:
-      - ../src/certs:/app/src/certs:ro
+      - ../src/certs/jwt/private.pem:/app/src/certs/jwt/private.pem:ro
+      - ../src/certs/jwt/public.pem:/app/src/certs/jwt/public.pem:ro
       - booking_static:/app/src/static/
     networks:
       - booking-backend-tier

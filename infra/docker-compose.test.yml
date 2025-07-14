@@ -6,7 +6,8 @@ services:
     env_file:
       - ../.env-test
     volumes:
-      - ../src/certs:/app/src/certs:ro
+      - ../src/certs/jwt/private.pem:/app/src/certs/jwt/private.pem:ro
+      - ../src/certs/jwt/public.pem:/app/src/certs/jwt/public.pem:ro
     depends_on:
       db:
         condition: service_healthy
@@ -50,7 +51,8 @@ services:
     env_file:
       - ../.env-test
     volumes:
-      - ../src/certs:/app/src/certs:ro
+      - ../src/certs/jwt/private.pem:/app/src/certs/jwt/private.pem:ro
+      - ../src/certs/jwt/public.pem:/app/src/certs/jwt/public.pem:ro
     depends_on:
       redis:
         condition: service_healthy
@@ -66,7 +68,8 @@ services:
     env_file:
       - ../.env-test
     volumes:
-      - ../src/certs:/app/src/certs:ro
+      - ../src/certs/jwt/private.pem:/app/src/certs/jwt/private.pem:ro
+      - ../src/certs/jwt/public.pem:/app/src/certs/jwt/public.pem:ro
     depends_on:
       celery:
         condition: service_started
