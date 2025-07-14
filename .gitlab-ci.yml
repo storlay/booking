@@ -1,7 +1,10 @@
-.prepare-env:
+.prepare-prod-env:
+  before_script:
+    - cp "$PROD_ENV" .env
+
+.prepare-test-env:
   before_script:
     - cp "$TEST_ENV" .env-test
-    - cp "$PROD_ENV" .env
 
 
 stages:
@@ -29,18 +32,18 @@ format-job:
 
 migrations-job:
   stage: migrations
-  extends: .prepare-env
+  extends: .prepare-prod-env
   script:
     - docker-compose -f infra/docker-compose.prod.yml run --rm api uv run alembic upgrade head
 
 test-job:
   stage: test
-  extends: .prepare-env
+  extends: .prepare-test-env
   script:
-    - docker-compose -f infra/docker-compose.test.yml up --build --abort-on-container-exit
+    - docker-compose -f infra/docker-compose.ci-test.yml up --build --abort-on-container-exit
 
 deploy-job:
   stage: deploy
-  extends: .prepare-env
+  extends: .prepare-prod-env
   script:
     - docker compose -f ./infra/docker-compose.prod.yml up -d
