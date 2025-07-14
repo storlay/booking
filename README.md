@@ -12,7 +12,7 @@
 
 3.  **Build and run the application:**
     ```bash
-    docker-compose -f infra/docker-compose.yml up --build
+    docker compose -f infra/docker-compose.local.yml up --build -d
     ```
 
 4.  **Access the application:**
@@ -38,6 +38,6 @@ The project includes a separate Docker Compose configuration for running the tes
 
 2.  **Run the tests:**
     ```bash
-    docker-compose -f infra/docker-compose.yml -f infra/docker-compose.test.yml up --build --abort-on-container-exit
+    docker compose -f infra/docker-compose.local.yml -f infra/docker-compose.local-test.yml up --build --abort-on-container-exit
     ```
     This command will spin up the necessary services, run the tests, and then automatically shut everything down.
