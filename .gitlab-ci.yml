@@ -2,8 +2,6 @@
   before_script:
     - cp "$TEST_ENV" .env-test
     - cp "$PROD_ENV" .env
-    - echo "$JWT_PRIVATE_KEY" > ./src/certs/jwt/private.pem
-    - echo "$JWT_PUBLIC_KEY" > ./src/certs/jwt/public.pem
 
 
 stages:

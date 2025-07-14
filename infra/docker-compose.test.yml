@@ -2,7 +2,7 @@ services:
   api:
     image: booking-api-image:latest
     container_name: booking-api-test
-    command: ./infra/commands/test-api.sh
+    command: ["./infra/commands/entrypoint-ci.sh", "./infra/commands/test-api.sh"]
     env_file:
       - ../.env-test
     volumes:
@@ -47,7 +47,7 @@ services:
   celery:
     image: booking-api-image:latest
     container_name: booking-celery-test
-    command: [ "./infra/commands/celery.sh", "celery" ]
+    command: ["./infra/commands/entrypoint-ci.sh", "./infra/commands/celery.sh", "celery"]
     env_file:
       - ../.env-test
     volumes:
@@ -64,7 +64,7 @@ services:
   beat:
     image: booking-api-image:latest
     container_name: booking-celery-beat-test
-    command: [ "./infra/commands/celery.sh", "beat" ]
+    command: ["./infra/commands/entrypoint-ci.sh", "./infra/commands/celery.sh", "beat"]
     env_file:
       - ../.env-test
     volumes:
